@@ -1,0 +1,34 @@
+{
+  "name": "socketio-p2p",
+  "description": "WebRTC data channel communication with a socket.io-like API",
+  "version": "0.0.1",
+  "author": {
+    "name": "Tom Cartwright",
+    "email": "tecartwright@gmail.com",
+    "url": "http://tomcartwright.net"
+  },
+  "bugs": {
+    "url": "https://github.com/tomcartwrightuk/socket.io-p2p/issues"
+  },
+  "license": "MIT",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/tomcartwrightuk/socket.io-p2p.git"
+  },
+  "keywords": [
+    "webrtc",
+    "peer-to-peer"
+  ],
+  "dependencies": {
+    "simple-peer": "~3.6.2"
+  },
+  "devDependencies": {
+    "tape": "~3.0.0",
+    "extend.js": "0.0.1",
+    "inherits": "~2.0.1"
+  },
+  "scripts": {
+    "test": "zuul -- test/*.js"
+  }
+}
