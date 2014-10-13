@@ -1,4 +1,4 @@
-#### Work in progress
+#### Work in progress - Just a playground for testing out some ideas at the moment
 
 # socketio-p2p
 
@@ -30,6 +30,7 @@ peer.emit('message', 'This is much easier than rolling your own signalling trans
 
 ## Roadmap of development
 
+- Add socketio protocol API, packets etc
+- Full support and testing for sending binary data
 - Basic things: Provide a bundle for non-browserified projects; improve documentation
 - Fallback connection to socket.io if PeerConnection is not available
-- Full support and testing for sending binary 	data
