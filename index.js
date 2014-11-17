@@ -1,7 +1,6 @@
 var inherits = require('inherits');
 var SimplePeer = require('simple-peer');
 var parser = require('socket.io-parser');
-var EventEmitter = require('events').EventEmitter
 var toArray = require('to-array');
 var hasBin = require('has-binary');
 var parser = require('socket.io-parser');
@@ -13,7 +12,7 @@ var Socketiop2p = function(opts, socket) {
   SimplePeer.call(this, opts)
   var self = this;
   this.decoder = new parser.Decoder(this);
-  this.decoder.on('decoded', bind(this, this.ondecoded))
+  this.decoder.on('decoded', bind(this, this.ondecoded));
   self.socket = socket;
   self.opts = opts;
   self._peerEvents = {
@@ -29,17 +28,14 @@ var Socketiop2p = function(opts, socket) {
                  };
 
   socket.on('peer_signal', function (message){
-    self.signal(message.data)
+    self.signal(message.data);
   });
 
   self.on('signal', function (data) {
-    socket.emit('peer_signal', {type: 'signal', data: data})
-  })
+    socket.emit('peer_signal', {type: 'signal', data: data});
+  });
+};
 
-  self.on('error', function(data) {
-    throw new Error('', data);
-  })
-}
 inherits(Socketiop2p, SimplePeer);
 
 Socketiop2p.prototype.emit = function (data, cb) {
@@ -55,8 +51,8 @@ Socketiop2p.prototype.emit = function (data, cb) {
 
     encoder.encode(packet, function(encodedPackets) {
       if (encodedPackets[1] instanceof ArrayBuffer) {
-        self.binarySlice(encodedPackets, self.send);
-      } else if encodedPackets {
+        if (self._channel) self._sendArray(encodedPackets);
+      } else if (encodedPackets) {
         for (var i = 0; i < encodedPackets.length; i++) {
           self.send(encodedPackets[i], cb);
         }
@@ -67,25 +63,34 @@ Socketiop2p.prototype.emit = function (data, cb) {
   }
 };
 
-Socketiop2p.prototype.binarySlice = function(arr, callback) {
-  var interval = 1000;
-  var end = arr[1].byteLength;
-  var chunks = [];
-  var nChunks = Math.ceil(end/interval);
-  var packetData = arr[0].substr(0, 1)+nChunks+arr[0].substr(arr[0].indexOf('-'));
+
+/**
+* If the second packet is a binary attachment,
+* swap out the attachment number for the number of chunks in the array
+* before sending the new packet and chunks
+**/
+
+Socketiop2p.prototype._sendArray = function(arr) {
+  var firstPacket = arr[0];
+  var interval = 5000;
+  var arrLength = arr[1].byteLength;
+  var nChunks = Math.ceil(arrLength/interval);
+  var packetData = firstPacket.substr(0, 1)+nChunks+firstPacket.substr(firstPacket.indexOf('-'));
   this.send(packetData);
-  for (start = 0; start < end; start += interval) {
-    var chunk = arr[1].slice(start, start + interval);
-    this.send(chunk);
+  this.binarySlice(arr[1], interval, this.send);
+}
+
+Socketiop2p.prototype.binarySlice = function(arr, interval, callback) {
+  var chunks = [];
+  for (start = 0; start < arr.byteLength; start += interval) {
+    var chunk = arr.slice(start, start + interval);
+    callback.call(this, chunk);
   }
 }
 
-
-Socketiop2p.prototype.send = function(packet, cb) {
+Socketiop2p.prototype.send = function(data, cb) {
   if (this._channel) {
-    this._channel.send(packet);
-  } else {
-    new Error('No channel established');
+    this._channel.send(data);
   }
 }
 
@@ -96,13 +101,12 @@ Socketiop2p.prototype._onChannelMessage = function (event) {
 }
 
 Socketiop2p.prototype.ondecoded = function(packet) {
-  console.log(packet);
   var args = packet.data || [];
   var ev = args[0];
   if (this._events[ev]) {
     this._events[ev](args[1]);
   } else {
-    throw new Error('No callback registered for');
+    throw new Error('No callback registered for '+ev);
   }
 }
 

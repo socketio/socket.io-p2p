@@ -22,7 +22,7 @@
   ],
   "dependencies": {
     "simple-peer": "~3.6.2",
-    "socket.io-parser": "^2.2.2"
+    "socket.io-parser": "tomcartwrightuk/socket.io-parser#webrtc-packet-parsing"
   },
   "devDependencies": {
     "tape": "~3.0.0",
