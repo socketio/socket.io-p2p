@@ -3,8 +3,6 @@ var SimplePeer = require('simple-peer');
 var parser = require('socket.io-parser');
 var toArray = require('to-array');
 var hasBin = require('has-binary');
-var parser = require('socket.io-parser');
-var engineParser = require('engine.io-parser');
 var bind = require('component-bind');
 var debug = require('debug');
 
@@ -38,10 +36,25 @@ var Socketiop2p = function(opts, socket) {
 
 inherits(Socketiop2p, SimplePeer);
 
+/**
+ * Overwride the inheritted 'on' method to add listeners to socket instance
+ * in addition to the peer so that events can be listened to on both channels
+**/
+
+Socketiop2p.prototype.on = function(type, listener) {
+  var self = this;
+  this.socket.addEventListener(type, function(data) {
+    data['_fromSocket'] = true;
+    self.emit(data); 
+    listener(data);
+  })
+  this.addListener(type, listener)
+};
+
 Socketiop2p.prototype.emit = function (data, cb) {
   var self = this;
   var encoder = new parser.Encoder();
-  if (this._peerEvents.hasOwnProperty(data)) {
+  if (this._peerEvents.hasOwnProperty(data) || data['_fromSocket']) {
     this.__proto__.__proto__.emit.call(this, data, cb);
   } else {
     var args = toArray(arguments);

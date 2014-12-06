@@ -1,5 +1,5 @@
 {
-  "name": "socketio-p2p",
+  "name": "socket.io-p2p",
   "description": "WebRTC data channel communication with a socket.io-like API",
   "version": "0.0.1",
   "author": {
@@ -22,7 +22,12 @@
   ],
   "dependencies": {
     "simple-peer": "~3.6.2",
-    "socket.io-parser": "tomcartwrightuk/socket.io-parser#webrtc-packet-parsing"
+    "socket.io-p2p-parser": "tomcartwrightuk/socket.io-p2p-parser",
+    "debug": "^2.1.0",
+    "to-array": "^0.1.4",
+    "has-binary": "^0.1.5",
+    "component-bind": "^1.0.0",
+    "inherits": "^2.0.1"
   },
   "devDependencies": {
     "tape": "~3.0.0",
