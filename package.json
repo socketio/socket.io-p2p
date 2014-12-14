@@ -21,18 +21,23 @@
     "peer-to-peer"
   ],
   "dependencies": {
-    "simple-peer": "~3.6.2",
-    "socket.io-p2p-parser": "tomcartwrightuk/socket.io-p2p-parser",
-    "debug": "^2.1.0",
-    "to-array": "^0.1.4",
-    "has-binary": "^0.1.5",
     "component-bind": "^1.0.0",
-    "inherits": "^2.0.1"
+    "debug": "^2.1.0",
+    "has-binary": "^0.1.5",
+    "inherits": "^2.0.1",
+    "simple-peer": "~3.6.2",
+    "socket.io": "^1.2.1",
+    "socket.io-p2p-parser": "tomcartwrightuk/socket.io-p2p-parser",
+    "to-array": "^0.1.4"
   },
   "devDependencies": {
-    "tape": "~3.0.0",
+    "expect": "^1.1.0",
+    "expect.js": "^0.3.1",
     "extend.js": "0.0.1",
-    "inherits": "~2.0.1"
+    "inherits": "~2.0.1",
+    "socket.io": "^1.2.1",
+    "socket.io-client": "^1.2.1",
+    "tape": "~3.0.0"
   },
   "scripts": {
     "test": "zuul -- test/*.js"

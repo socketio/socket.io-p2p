@@ -1,7 +1,8 @@
-var Socketiop2p = require('../socket.io-p2p');
-var test = require('tape');
+var Socketiop2p = require('../index');
+var io = require('socket.io-client');
+
+var expect = require('expect.js');
 var extend = require('extend.js');
-var EventEmitter = require('events').EventEmitter;
 
 var peerOpts = {
   initiator: false,
@@ -12,24 +13,37 @@ var peerOpts = {
   trickle: false
 };
 
-test('signal function gets called when peer_signal is received on socket or peer is initiator', function (t) {
-  var peer1 = new Socketiop2p(extend(peerOpts, {initiator: true}), new EventEmitter)
-  var peer2 = new Socketiop2p(peerOpts, new EventEmitter)
-  peer1.startSignalling();
-  peer2.startSignalling();
+describe('ArrayBufferr', function() {
 
-  peer1.on('signal', function () {
-    t.pass('Signal event triggered because I am initiator')
-    peer1.destroy()
-  })
+  var socket1 = io({ forceNew: true });
+  var socket2 = io({ forceNew: true });
 
-  peer2.on('signal', function() {
-    t.pass('Signal event triggered because I got some data over the socket')
-    peer2.destroy()
-    t.end()
-  })
-});
+  it('should receive utf8 multibyte characters', function(done) {
+    var correct = [
+      'てすと',
+      'Я Б Г Д Ж Й',
+      'Ä ä Ü ü ß',
+      'utf8 — string',
+      'utf8 — string'
+    ];
 
-test('error event is emitted when a PeerConnection error occurs', function(t) {
-  console.log("TODO");
-});
+    var p2psocket1 = new Socketiop2p(extend(peerOpts, {initiator: true}), socket1);
+    var p2psocket2 = new Socketiop2p(extend(peerOpts, {initiator: false}), socket2);
+
+    var i = 0;
+    p2psocket2.on('takeUtf8', function(data) {
+      expect(data).to.be(correct[i]);
+      i++;
+      if (i == correct.length) {
+        done();
+      }
+    });
+    p2psocket2.on('ready', function() {
+      p2psocket1.emit('takeUtf8', 'てすと');
+      p2psocket1.emit('takeUtf8', 'Я Б Г Д Ж Й');
+      p2psocket1.emit('takeUtf8', 'Ä ä Ü ü ß');
+      p2psocket1.emit('takeUtf8', 'utf8 — string');
+      p2psocket1.emit('takeUtf8', 'utf8 — string');
+    })
+  });
+})
