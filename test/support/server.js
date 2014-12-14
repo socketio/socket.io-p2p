@@ -7,4 +7,8 @@ server.on('connection', function(socket){
   socket.on('peer_signal', function(signallingData) {
     socket.broadcast.emit('peer_signal', signallingData); // send signalling to all but sender
   })
+
+  socket.on('socket-obj', function(data) {
+    socket.broadcast.emit('socket-obj', data)
+  })
 });

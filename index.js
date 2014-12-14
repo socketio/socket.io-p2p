@@ -11,6 +11,7 @@ var Socketiop2p = function(opts, socket) {
   var self = this;
   this.decoder = new parser.Decoder(this);
   this.decoder.on('decoded', bind(this, this.ondecoded));
+  this.useSockets = true;
   self.socket = socket;
   self.opts = opts;
   self._peerEvents = {
@@ -37,25 +38,31 @@ var Socketiop2p = function(opts, socket) {
 inherits(Socketiop2p, SimplePeer);
 
 /**
- * Overwride the inheritted 'on' method to add listeners to socket instance
- * in addition to the peer so that events can be listened to on both channels
+ * Overwride the inheritted 'on' method to add a listener to the socket instance
+ * that emits the event on the Socketio event loop
 **/
 
 Socketiop2p.prototype.on = function(type, listener) {
   var self = this;
   this.socket.addEventListener(type, function(data) {
-    data['_fromSocket'] = true;
-    self.emit(data); 
-    listener(data);
+    var dataObj = data || {}
+    dataObj['_fromSocket'] = true;
+    self.emit(type, dataObj);
   })
   this.addListener(type, listener)
 };
 
 Socketiop2p.prototype.emit = function (data, cb) {
   var self = this;
+  var argsObj = cb || {};
   var encoder = new parser.Encoder();
-  if (this._peerEvents.hasOwnProperty(data) || data['_fromSocket']) {
-    this.__proto__.__proto__.emit.call(this, data, cb);
+
+  if (this._peerEvents.hasOwnProperty(data) || argsObj['_fromSocket']) {
+    delete argsObj['_fromSocket']
+    // Hackety hack
+    this.__proto__.__proto__.emit.call(this, data, argsObj);
+  } else if (this.useSockets) {
+    this.socket.emit(data, cb);
   } else {
     var args = toArray(arguments);
     var parserType = parser.EVENT; // default
