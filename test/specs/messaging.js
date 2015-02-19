@@ -1,38 +1,38 @@
-var Socketiop2p = require('../index');
+var Socketiop2p = require('../../index');
 var io = require('socket.io-client');
 
 var expect = require('expect.js');
 var extend = require('extend.js');
 
 var peerOpts = {
-  initiator: false,
-  stream: false,
-  config: { iceServers: [] },
-  constraints: {},
-  channelName: 'simple-peer',
-  trickle: false
+  initiator: false
 };
 
-describe('Socket inoperablitiy', function() {
-
-  var socket1 = io({ forceNew: true });
-  var socket2 = io({ forceNew: true });
+describe('Socket inter-operability', function() {
+  var manager1 = io.Manager();
+  var manager2 = io.Manager();
+  var socket1 = manager1.socket('/inter')
+  var socket2 = manager2.socket('/inter')
   var p2psocket1 = new Socketiop2p(peerOpts, socket1);
-  var p2psocket2 = new Socketiop2p(extend(peerOpts, {initiator: true}), socket2);
+  var p2psocket2 = new Socketiop2p(peerOpts, socket2);
+  p2psocket1.useSockets = true;
+  p2psocket2.useSockets = true;
 
   describe('JSON', function(done) {
     it('should parse data from peer connection and sockets', function(done) {
-
       var jsonObj = {ping: 'pong', ding: {dong: 'song'}};
+      // from webrtc
       p2psocket1.on('ready', function() {
-        // from webrtc
+        console.log("sreadu");
         p2psocket1.on('peer-obj', function(data) {
+          console.log("value");
           expect(data).to.eql(jsonObj)
           done();
         })
 
         p2psocket2.on('socket-obj', function(data) {
           // over socket
+          console.log("Ovr socket");
           expect(data).to.eql(jsonObj)
           p2psocket1.useSockets = false;
           p2psocket2.useSockets = false;
@@ -40,13 +40,14 @@ describe('Socket inoperablitiy', function() {
         })
 
         p2psocket1.emit('socket-obj', jsonObj)
-
-      });
+      })
     });
   });
 
   describe('ArrayBufferr', function() {
     it('should receive utf8 multibyte characters', function(done) {
+      p2psocket1.useSockets = false;
+      p2psocket2.useSockets = false;
       var correct = [
         'てすと',
         'Я Б Г Д Ж Й',
@@ -55,15 +56,18 @@ describe('Socket inoperablitiy', function() {
         'utf8 — string'
       ];
 
-      p2psocket1.useSockets = false;
-      p2psocket2.useSockets = false;
-
       var i = 0;
       p2psocket1.on('takeUtf8', function(data) {
         expect(data).to.be(correct[i]);
         i++;
         if (i == correct.length) {
           done();
+          p2psocket1.disconnect()
+          p2psocket2.disconnect()
+          p2psocket1 = null;
+          p2psocket2 = null;
+          socket1 = null;
+          socket2 = null;
         }
       });
       p2psocket2.emit('takeUtf8', 'てすと');

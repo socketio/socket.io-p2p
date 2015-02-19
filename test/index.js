@@ -1,11 +1,2 @@
-var env = require('./support/env');
-
-// node only tests
-// if (env.node) {
-  // require('./url');
-// }
-
-// browser only tests
-if (env.browser) {
-  require('./socketio-p2p-spec');
-}
+require('./specs/connection');
+require('./specs/messaging');
