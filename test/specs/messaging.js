@@ -2,9 +2,7 @@ var Socketiop2p = require('../../index');
 var io = require('socket.io-client');
 var expect = require('expect.js');
 
-var peerOpts = {
-  initiator: false
-};
+var peerOpts = {}
 
 describe('Socket inter-operability', function() {
   var manager1 = io.Manager();

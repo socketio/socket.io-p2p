@@ -28,32 +28,20 @@ var chat = server
     });
   })
 
-  // TODO rename this peer_signal
-  socket.on('signal', function(data) {
+  socket.on('peer-signal', function(data) {
     var toPeerId = data.toPeerId;
     var client = chatClients[toPeerId];
-    client.emit('signal', data)
+    client.emit('peer-signal', data)
   });
-
-  // Old Events. TODO: REMOVE
-  // WebRTC setup
-  socket.on('peer_signal', function(signallingData) {
-    socket.broadcast.emit('peer_signal', signallingData); // send signalling to all but sender
-  })
 
   socket.on('socket-obj', function(data) {
     socket.broadcast.emit('socket-obj', data)
-  })
-
-  // Distribute the peer ids among the other clients
-  socket.on('new_peer', function(data) {
-    socket.broadcast.emit('new_peer', data);
   })
 });
 
 var rootSpace = server
 .of('/inter')
-.on('connection', function(socket) { 
+.on('connection', function(socket) {
   // Tell the new client how many other clients there are
   socket.emit('numClients', Object.keys(interClients).length)
 
@@ -73,26 +61,13 @@ var rootSpace = server
     });
   })
 
-  // TODO rename this peer_signal
-  socket.on('signal', function(data) {
+  socket.on('peer-signal', function(data) {
     var toPeerId = data.toPeerId;
     var client = interClients[toPeerId];
-    client.emit('signal', data)
+    client.emit('peer-signal', data)
   });
-
-  // Old Events. TODO: REMOVE
-
-  // WebRTC setup
-  socket.on('peer_signal', function(signallingData) {
-    socket.broadcast.emit('peer_signal', signallingData); // send signalling to all but sender
-  })
 
   socket.on('socket-obj', function(data) {
     socket.broadcast.emit('socket-obj', data)
-  })
-
-  // Distribute the peer ids among the other clients
-  socket.on('new_peer', function(data) {
-    socket.broadcast.emit('new_peer', data);
   })
 });

@@ -1,5 +1,5 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"/Users/tom/code/socket-io/socket.io-p2p/demo/src/index.js":[function(require,module,exports){
-var Socketiop2p = require('../../index');
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"/Users/tom/code/socket-io/socket.io-p2p/examples/chat/src/index.js":[function(require,module,exports){
+var Socketiop2p = require('../../../index');
 var io = require('socket.io-client');
 var connectionUrl = '/chat';
 
@@ -26,7 +26,6 @@ function init () {
   });
 
   p2psocket.on('peer-msg', function(data) {
-    console.log(data);
     var li = document.createElement("li");
     li.appendChild(document.createTextNode(data));
     msgList.appendChild(li);
@@ -34,6 +33,9 @@ function init () {
 
   form.addEventListener('submit', function(e, d) {
     e.preventDefault();
+    var li = document.createElement("li");
+    li.appendChild(document.createTextNode(box.value));
+    msgList.appendChild(li);
     p2psocket.emit('peer-msg', box.value)
   });
 
@@ -50,7 +52,7 @@ function init () {
 
 document.addEventListener('DOMContentLoaded', init, false)
 
-},{"../../index":"/Users/tom/code/socket-io/socket.io-p2p/index.js","socket.io-client":"/Users/tom/code/socket-io/socket.io-p2p/node_modules/socket.io-client/index.js"}],"/Users/tom/code/socket-io/socket.io-p2p/index.js":[function(require,module,exports){
+},{"../../../index":"/Users/tom/code/socket-io/socket.io-p2p/index.js","socket.io-client":"/Users/tom/code/socket-io/socket.io-p2p/node_modules/socket.io-client/index.js"}],"/Users/tom/code/socket-io/socket.io-p2p/index.js":[function(require,module,exports){
 var Peer = require('simple-peer');
 var Emitter = require('component-emitter');
 var parser = require('socket.io-parser');
@@ -59,6 +61,8 @@ var hasBin = require('has-binary');
 var bind = require('component-bind');
 var debug = require('debug');
 var hat = require('hat');
+var extend = require('extend.js');
+
 var emitfn = Emitter.prototype.emit;
 
 function Socketiop2p (opts, socket) {
@@ -69,22 +73,13 @@ function Socketiop2p (opts, socket) {
   self.socket = socket;
   self.opts = opts;
   self._peers = {};
-  // TODO Set this from opts or when receiving numClients
-  self.numClients = 4;
+  self.numClients = opts.numClients || 5;
   self.numConnectedClients;
   self.readyPeers = 0;
-  // TODO Clean up these events
   self._peerEvents = {
-                   signal: 1,
-                   signalingStateChange: 1,
-                   iceConnectionStateChange: 1,
-                   _onChannelMessage: 1,
-                   _iceComplete: 1,
                    ready: 1,
                    error: 1,
                    peer_signal: 1,
-                   message: 1,
-                   addPeer: 1,
                    peer_ready: 1
                  };
 
@@ -106,9 +101,8 @@ function Socketiop2p (opts, socket) {
       }
       function generateOffer () {
         var offerId = hat(160)
-        // TODO Extend the passed in options properly
-        var peer = self._peers[offerId] = new Peer({initiator: true, trickle: true})
-        // TODO Set listeners sensibly
+        var peerOpts = extend(opts, {initiator: true, trickle: true})
+        var peer = self._peers[offerId] = new Peer(peerOpts)
         peer.setMaxListeners(50)
         self.setupPeerEvents(peer);
         peer.once('signal', function (offer) {
@@ -130,10 +124,9 @@ function Socketiop2p (opts, socket) {
   });
 
   socket.on('offer', function(data) {
-    // TODO extend the passed in options properly
-    var peer = self._peers[data.fromPeerId] = new Peer({trickle: true})
+    var peerOpts = extend(opts, {initiator: false, trickle: true})
+    var peer = self._peers[data.fromPeerId] = new Peer(peerOpts)
     self.numConnectedClients++;
-    // TODO Set listeners sensibly
     peer.setMaxListeners(50)
     self.setupPeerEvents(peer);
     peer.on('signal', function(signalData) {
@@ -143,12 +136,12 @@ function Socketiop2p (opts, socket) {
         fromPeerId: self.peerId,
         toPeerId: data.fromPeerId
       }
-      socket.emit('signal', signalObj);
+      socket.emit('peer-signal', signalObj);
     });
     peer.signal(data.offer);
   });
 
-  socket.on('signal', function(data) {
+  socket.on('peer-signal', function(data) {
     // Select peer from offerId if exists
     var id = data.offerId || data.fromPeerId;
     var peer = self._peers[data.offerId] || self._peers[data.fromPeerId];
@@ -160,7 +153,7 @@ function Socketiop2p (opts, socket) {
         fromPeerId: self.peerId,
         toPeerId: data.fromPeerId
       }
-      socket.emit('signal', signalObj);
+      socket.emit('peer-signal', signalObj);
     })
 
     // TODO Handle errors properly
@@ -281,7 +274,7 @@ Socketiop2p.prototype.disconnect = function() {
 
 module.exports = Socketiop2p;
 
-},{"component-bind":"/Users/tom/code/socket-io/socket.io-p2p/node_modules/component-bind/index.js","component-emitter":"/Users/tom/code/socket-io/socket.io-p2p/node_modules/component-emitter/index.js","debug":"/Users/tom/code/socket-io/socket.io-p2p/node_modules/debug/browser.js","has-binary":"/Users/tom/code/socket-io/socket.io-p2p/node_modules/has-binary/index.js","hat":"/Users/tom/code/socket-io/socket.io-p2p/node_modules/hat/index.js","simple-peer":"/Users/tom/code/socket-io/socket.io-p2p/node_modules/simple-peer/index.js","socket.io-parser":"/Users/tom/code/socket-io/socket.io-p2p/node_modules/socket.io-parser/index.js","to-array":"/Users/tom/code/socket-io/socket.io-p2p/node_modules/to-array/index.js"}],"/Users/tom/code/socket-io/socket.io-p2p/node_modules/component-bind/index.js":[function(require,module,exports){
+},{"component-bind":"/Users/tom/code/socket-io/socket.io-p2p/node_modules/component-bind/index.js","component-emitter":"/Users/tom/code/socket-io/socket.io-p2p/node_modules/component-emitter/index.js","debug":"/Users/tom/code/socket-io/socket.io-p2p/node_modules/debug/browser.js","extend.js":"/Users/tom/code/socket-io/socket.io-p2p/node_modules/extend.js/index.js","has-binary":"/Users/tom/code/socket-io/socket.io-p2p/node_modules/has-binary/index.js","hat":"/Users/tom/code/socket-io/socket.io-p2p/node_modules/hat/index.js","simple-peer":"/Users/tom/code/socket-io/socket.io-p2p/node_modules/simple-peer/index.js","socket.io-parser":"/Users/tom/code/socket-io/socket.io-p2p/node_modules/socket.io-parser/index.js","to-array":"/Users/tom/code/socket-io/socket.io-p2p/node_modules/to-array/index.js"}],"/Users/tom/code/socket-io/socket.io-p2p/node_modules/component-bind/index.js":[function(require,module,exports){
 /**
  * Slice reference.
  */
@@ -930,6 +923,28 @@ function plural(ms, n, name) {
   return Math.ceil(ms / n) + ' ' + name + 's';
 }
 
+},{}],"/Users/tom/code/socket-io/socket.io-p2p/node_modules/extend.js/index.js":[function(require,module,exports){
+/**
+ * Extend an object with another.
+ *
+ * @param {Object, ...} src, ...
+ * @return {Object} merged
+ * @api private
+ */
+
+module.exports = function(src) {
+  var objs = [].slice.call(arguments, 1), obj;
+
+  for (var i = 0, len = objs.length; i < len; i++) {
+    obj = objs[i];
+    for (var prop in obj) {
+      src[prop] = obj[prop];
+    }
+  }
+
+  return src;
+}
+
 },{}],"/Users/tom/code/socket-io/socket.io-p2p/node_modules/has-binary/index.js":[function(require,module,exports){
 (function (global){
 
@@ -1378,27 +1393,7 @@ arguments[4]["/Users/tom/code/socket-io/socket.io-p2p/node_modules/debug/debug.j
 },{"ms":"/Users/tom/code/socket-io/socket.io-p2p/node_modules/simple-peer/node_modules/debug/node_modules/ms/index.js"}],"/Users/tom/code/socket-io/socket.io-p2p/node_modules/simple-peer/node_modules/debug/node_modules/ms/index.js":[function(require,module,exports){
 arguments[4]["/Users/tom/code/socket-io/socket.io-p2p/node_modules/debug/node_modules/ms/index.js"][0].apply(exports,arguments)
 },{}],"/Users/tom/code/socket-io/socket.io-p2p/node_modules/simple-peer/node_modules/extend.js/index.js":[function(require,module,exports){
-/**
- * Extend an object with another.
- *
- * @param {Object, ...} src, ...
- * @return {Object} merged
- * @api private
- */
-
-module.exports = function(src) {
-  var objs = [].slice.call(arguments, 1), obj;
-
-  for (var i = 0, len = objs.length; i < len; i++) {
-    obj = objs[i];
-    for (var prop in obj) {
-      src[prop] = obj[prop];
-    }
-  }
-
-  return src;
-}
-
+arguments[4]["/Users/tom/code/socket-io/socket.io-p2p/node_modules/extend.js/index.js"][0].apply(exports,arguments)
 },{}],"/Users/tom/code/socket-io/socket.io-p2p/node_modules/simple-peer/node_modules/hat/index.js":[function(require,module,exports){
 arguments[4]["/Users/tom/code/socket-io/socket.io-p2p/node_modules/hat/index.js"][0].apply(exports,arguments)
 },{}],"/Users/tom/code/socket-io/socket.io-p2p/node_modules/simple-peer/node_modules/inherits/inherits_browser.js":[function(require,module,exports){
@@ -11879,4 +11874,4 @@ function base64DetectIncompleteChar(buffer) {
   this.charLength = this.charReceived ? 3 : 0;
 }
 
-},{"buffer":"/usr/local/lib/node_modules/watchify/node_modules/browserify/node_modules/buffer/index.js"}]},{},["/Users/tom/code/socket-io/socket.io-p2p/demo/src/index.js"]);
+},{"buffer":"/usr/local/lib/node_modules/watchify/node_modules/browserify/node_modules/buffer/index.js"}]},{},["/Users/tom/code/socket-io/socket.io-p2p/examples/chat/src/index.js"]);

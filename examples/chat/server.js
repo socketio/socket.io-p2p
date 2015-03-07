@@ -35,27 +35,11 @@ var chat = io
     });
   })
 
-  // TODO rename this peer_signal
-  socket.on('signal', function(data) {
+  socket.on('peer-signal', function(data) {
     var toPeerId = data.toPeerId;
     var client = clients[toPeerId];
-    client.emit('signal', data)
+    client.emit('peer-signal', data)
   });
-
-  // Old Events. TODO: REMOVE
-  // WebRTC setup
-  socket.on('peer_signal', function(signallingData) {
-    socket.broadcast.emit('peer_signal', signallingData); // send signalling to all but sender
-  })
-
-  socket.on('socket-obj', function(data) {
-    socket.broadcast.emit('socket-obj', data)
-  })
-
-  // Distribute the peer ids among the other clients
-  socket.on('new_peer', function(data) {
-    socket.broadcast.emit('new_peer', data);
-  })
 
   socket.on('peer-msg', function(data) {
     console.log("peer msg");

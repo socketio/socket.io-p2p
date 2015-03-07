@@ -1,4 +1,4 @@
-var Socketiop2p = require('../../index');
+var Socketiop2p = require('../../../index');
 var io = require('socket.io-client');
 var connectionUrl = '/chat';
 
@@ -25,7 +25,6 @@ function init () {
   });
 
   p2psocket.on('peer-msg', function(data) {
-    console.log(data);
     var li = document.createElement("li");
     li.appendChild(document.createTextNode(data));
     msgList.appendChild(li);
@@ -33,6 +32,9 @@ function init () {
 
   form.addEventListener('submit', function(e, d) {
     e.preventDefault();
+    var li = document.createElement("li");
+    li.appendChild(document.createTextNode(box.value));
+    msgList.appendChild(li);
     p2psocket.emit('peer-msg', box.value)
   });
 

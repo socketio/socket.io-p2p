@@ -6,6 +6,8 @@ var hasBin = require('has-binary');
 var bind = require('component-bind');
 var debug = require('debug');
 var hat = require('hat');
+var extend = require('extend.js');
+
 var emitfn = Emitter.prototype.emit;
 
 function Socketiop2p (opts, socket) {
@@ -16,22 +18,13 @@ function Socketiop2p (opts, socket) {
   self.socket = socket;
   self.opts = opts;
   self._peers = {};
-  // TODO Set this from opts or when receiving numClients
-  self.numClients = 4;
+  self.numClients = opts.numClients || 5;
   self.numConnectedClients;
   self.readyPeers = 0;
-  // TODO Clean up these events
   self._peerEvents = {
-                   signal: 1,
-                   signalingStateChange: 1,
-                   iceConnectionStateChange: 1,
-                   _onChannelMessage: 1,
-                   _iceComplete: 1,
                    ready: 1,
                    error: 1,
                    peer_signal: 1,
-                   message: 1,
-                   addPeer: 1,
                    peer_ready: 1
                  };
 
@@ -53,9 +46,8 @@ function Socketiop2p (opts, socket) {
       }
       function generateOffer () {
         var offerId = hat(160)
-        // TODO Extend the passed in options properly
-        var peer = self._peers[offerId] = new Peer({initiator: true, trickle: true})
-        // TODO Set listeners sensibly
+        var peerOpts = extend(opts, {initiator: true, trickle: true})
+        var peer = self._peers[offerId] = new Peer(peerOpts)
         peer.setMaxListeners(50)
         self.setupPeerEvents(peer);
         peer.once('signal', function (offer) {
@@ -77,10 +69,9 @@ function Socketiop2p (opts, socket) {
   });
 
   socket.on('offer', function(data) {
-    // TODO extend the passed in options properly
-    var peer = self._peers[data.fromPeerId] = new Peer({trickle: true})
+    var peerOpts = extend(opts, {initiator: false, trickle: true})
+    var peer = self._peers[data.fromPeerId] = new Peer(peerOpts)
     self.numConnectedClients++;
-    // TODO Set listeners sensibly
     peer.setMaxListeners(50)
     self.setupPeerEvents(peer);
     peer.on('signal', function(signalData) {
@@ -90,12 +81,12 @@ function Socketiop2p (opts, socket) {
         fromPeerId: self.peerId,
         toPeerId: data.fromPeerId
       }
-      socket.emit('signal', signalObj);
+      socket.emit('peer-signal', signalObj);
     });
     peer.signal(data.offer);
   });
 
-  socket.on('signal', function(data) {
+  socket.on('peer-signal', function(data) {
     // Select peer from offerId if exists
     var id = data.offerId || data.fromPeerId;
     var peer = self._peers[data.offerId] || self._peers[data.fromPeerId];
@@ -107,7 +98,7 @@ function Socketiop2p (opts, socket) {
         fromPeerId: self.peerId,
         toPeerId: data.fromPeerId
       }
-      socket.emit('signal', signalObj);
+      socket.emit('peer-signal', signalObj);
     })
 
     // TODO Handle errors properly

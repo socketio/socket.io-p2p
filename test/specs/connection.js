@@ -4,9 +4,7 @@ var io = require('socket.io-client');
 var expect = require('expect.js');
 var extend = require('extend.js');
 
-var peerOpts = {
-  initiator: false
-};
+var peerOpts = {};
 
 describe('Multi-way communication', function() {
   var connectionUrl = '/chat';
