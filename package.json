@@ -22,10 +22,10 @@
   ],
   "dependencies": {
     "component-bind": "^1.0.0",
+    "component-emitter": "^1.2.0",
     "debug": "^2.1.0",
     "has-binary": "^0.1.5",
     "hat": "0.0.3",
-    "inherits": "^2.0.1",
     "simple-peer": "~3.6.2",
     "socket.io": "^1.2.1",
     "socket.io-p2p-parser": "tomcartwrightuk/socket.io-p2p-parser",

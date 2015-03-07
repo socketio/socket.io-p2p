@@ -4,8 +4,6 @@ var server = io(process.env.ZUUL_PORT);
 var chatClients = [];
 var interClients = [];
 
-console.log(process.env.ZUUL_PORT);
-
 var chat = server
 .of('/chat')
 .on('connection', function(socket) {
@@ -18,13 +16,9 @@ var chat = server
   chatClients[socket.id] = socket;
   socket.on('disconnect', function() {
     delete chatClients[socket.id]
-    console.info('Client gone (id=' + socket.id + ').');
-    console.log(Object.keys(chatClients).length);
   });
 
   socket.on('offers', function(data) {
-    console.log('chatClients '+Object.keys(chatClients).length);
-    console.log('offers '+data.offers.length);
     Object.keys(chatClients).forEach(function(clientId, i) {
       var client = chatClients[clientId];
       if (client !== socket) {
@@ -60,22 +54,16 @@ var chat = server
 var rootSpace = server
 .of('/inter')
 .on('connection', function(socket) { 
-  console.log("Connected client");
   // Tell the new client how many other clients there are
-  console.log('Num clinets '+Object.keys(interClients).length);
   socket.emit('numClients', Object.keys(interClients).length)
 
   // Add new client to client list
   interClients[socket.id] = socket;
   socket.on('disconnect', function() {
     delete interClients[socket.id]
-    console.info('Client gone (id=' + socket.id + ').');
-    console.log(Object.keys(interClients).length);
   });
 
   socket.on('offers', function(data) {
-    console.log('interClients '+Object.keys(interClients).length);
-    console.log('offers '+data.offers.length);
     Object.keys(interClients).forEach(function(clientId, i) {
       var client = interClients[clientId];
       if (client !== socket) {

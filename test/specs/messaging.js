@@ -1,8 +1,6 @@
 var Socketiop2p = require('../../index');
 var io = require('socket.io-client');
-
 var expect = require('expect.js');
-var extend = require('extend.js');
 
 var peerOpts = {
   initiator: false
@@ -22,25 +20,20 @@ describe('Socket inter-operability', function() {
     it('should parse data from peer connection and sockets', function(done) {
       var jsonObj = {ping: 'pong', ding: {dong: 'song'}};
       // from webrtc
-      p2psocket1.on('ready', function() {
-        console.log("sreadu");
-        p2psocket1.on('peer-obj', function(data) {
-          console.log("value");
-          expect(data).to.eql(jsonObj)
-          done();
-        })
-
-        p2psocket2.on('socket-obj', function(data) {
-          // over socket
-          console.log("Ovr socket");
-          expect(data).to.eql(jsonObj)
-          p2psocket1.useSockets = false;
-          p2psocket2.useSockets = false;
-          p2psocket2.emit('peer-obj', jsonObj)
-        })
-
-        p2psocket1.emit('socket-obj', jsonObj)
+      p2psocket1.on('peer-obj', function(data) {
+        expect(data).to.eql(jsonObj)
+        done();
       })
+
+      p2psocket2.on('socket-obj', function(data) {
+        // over socket
+        expect(data).to.eql(jsonObj)
+        p2psocket1.useSockets = false;
+        p2psocket2.useSockets = false;
+        p2psocket2.emit('peer-obj', jsonObj)
+      })
+
+      p2psocket1.emit('socket-obj', jsonObj)
     });
   });
 

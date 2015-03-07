@@ -1,25 +1,14 @@
-var inherits = require('inherits');
 var Peer = require('simple-peer');
+var Emitter = require('component-emitter');
 var parser = require('socket.io-parser');
 var toArray = require('to-array');
 var hasBin = require('has-binary');
 var bind = require('component-bind');
 var debug = require('debug');
 var hat = require('hat');
-var EventEmitter = require('events').EventEmitter
+var emitfn = Emitter.prototype.emit;
 
-var Socketiop2p = function(opts, socket) {
-  EventEmitter.call(this)
-  /* When socket receives given event addPeer() to create new peer connection
-   * Attatch listeners to that peer for message and signal
-   * Peers generate a code that is passed with signalling data so that you can
-   * Questions?
-   * How do indicate that the peer is an initiator?
-   * Connect to server, receive numClients and create peers for each of them
-   * Receive answers and add them to the current peers
-   * Emit ice candidates (further signalling) and listen further signalling
-   * Listen for offers and create a peer for that
-   * */
+function Socketiop2p (opts, socket) {
   var self = this;
   self.useSockets = true;
   self.decoder = new parser.Decoder(this);
@@ -46,7 +35,6 @@ var Socketiop2p = function(opts, socket) {
                    peer_ready: 1
                  };
 
-  // Events coming in
   socket.on('numClients', function(numClients) {
     self.peerId = socket.io.engine.id;
     self.numConnectedClients = numClients;
@@ -96,7 +84,6 @@ var Socketiop2p = function(opts, socket) {
     peer.setMaxListeners(50)
     self.setupPeerEvents(peer);
     peer.on('signal', function(signalData) {
-      console.log("signalling");
       var signalObj = {
         signal: signalData,
         offerId: data.offerId,
@@ -139,22 +126,13 @@ var Socketiop2p = function(opts, socket) {
 
 };
 
-inherits(Socketiop2p, EventEmitter);
+Emitter(Socketiop2p.prototype);
+// inherits(Socketiop2p, EventEmitter);
 
 /**
  * Overwride the inheritted 'on' method to add a listener to the socket instance
  * that emits the event on the Socketio event loop
 **/
-
-Socketiop2p.prototype.on = function(type, listener) {
-  var self = this;
-  this.socket.addEventListener(type, function(data) {
-    var dataObj = data || {}
-    dataObj['_fromSocket'] = true;
-    self.emit(type, dataObj);
-  })
-  this.addListener(type, listener)
-};
 
 Socketiop2p.prototype.setupPeerEvents = function(peer) {
   var self = this;
@@ -171,15 +149,21 @@ Socketiop2p.prototype.setupPeerEvents = function(peer) {
   })
 }
 
+Socketiop2p.prototype.on = function(type, listener) {
+  var self = this;
+  this.socket.addEventListener(type, function(data) {
+    emitfn.apply(self, [type, data]);
+  })
+  this.addEventListener(type, listener)
+};
+
 Socketiop2p.prototype.emit = function (data, cb) {
   var self = this;
   var argsObj = cb || {};
   var encoder = new parser.Encoder();
 
   if (this._peerEvents.hasOwnProperty(data) || argsObj['_fromSocket']) {
-    delete argsObj['_fromSocket']
-    // Hackety hack
-    this.__proto__.__proto__.emit.call(this, data, argsObj);
+    emitfn.apply(this, arguments)
   } else if (this.useSockets) {
     this.socket.emit(data, cb);
   } else {
@@ -231,16 +215,10 @@ Socketiop2p.prototype.binarySlice = function(arr, interval, callback) {
 
 Socketiop2p.prototype.ondecoded = function(packet) {
   var args = packet.data || [];
-  var ev = args[0];
-  if (this._events[ev]) {
-    this._events[ev](args[1]);
-  } else {
-    throw new Error('No callback registered for '+ev);
-  }
+  emitfn.apply(this, args)
 }
 
 Socketiop2p.prototype.disconnect = function() {
-  console.log("Disconnecting");
   for (var peerId in this._peers) {
     var peer = this._peers[peerId];
     peer.destroy();
