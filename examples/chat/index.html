@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Socket.io-p2p Example</title>
+</head>
+<body>
+  <h1>Socket.io-p2p Example</h1>
+  <p><i>Send messages over socket.io and hit `Go Private` to set all WebRTC enabled clients to enter a private conversation.</i></p>
+
+  <ul id="messages"></ul>
+  <form action="#" id="msg-form">
+    <label>Enter message</label>
+    <input type="text" name="lname" id="msg-box" size="40">
+    <input type="submit" value="Submit">
+    <button id="private" disabled="true">Go private</button>
+  </form>
+  <h2>Messages</h2>
+  <ul id="msg-list"></ul>
+  <style>
+    h2 {
+      font-size: 18px;
+      margin-bottom: 5px;
+    }
+    ul {
+      list-style-type: none;
+      padding-left: 0;
+      margin-top: 5px;
+    }
+    li {
+      padding: 5px 0;
+      border-top: 1px dashed #CCC;
+    }
+  </style>
+  <script src="/adapter.js"></script>
+  <script src="/bundle.js"></script>
+</body>
+</html>
