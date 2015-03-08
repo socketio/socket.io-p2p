@@ -92,7 +92,7 @@ io.on('connection', function(socket) {
 
 ## Roadmap of development
 
-- Support for packets contining multiple binary blobs - packets can only contain one blob in this version
+- Support for packets containing multiple binary blobs - packets can only contain one blob in this version
 - Allow a peer to act as a relay between peers that don't support PeerConnection and those that do.
 
 ## Completed roadmap tasks
