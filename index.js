@@ -91,7 +91,7 @@ function Socketiop2p (opts, socket) {
     var id = data.offerId || data.fromPeerId;
     var peer = self._peers[data.offerId] || self._peers[data.fromPeerId];
 
-    peer.on('signal', function signalll(signalData) {
+    peer.on('signal', function signal(signalData) {
       var signalObj = {
         signal: signalData,
         offerId: data.offerId,
@@ -118,12 +118,6 @@ function Socketiop2p (opts, socket) {
 };
 
 Emitter(Socketiop2p.prototype);
-// inherits(Socketiop2p, EventEmitter);
-
-/**
- * Overwride the inheritted 'on' method to add a listener to the socket instance
- * that emits the event on the Socketio event loop
-**/
 
 Socketiop2p.prototype.setupPeerEvents = function(peer) {
   var self = this;
@@ -139,6 +133,11 @@ Socketiop2p.prototype.setupPeerEvents = function(peer) {
     self.decoder.add(data);
   })
 }
+
+/**
+ * Overwride the inheritted 'on' method to add a listener to the socket instance
+ * that emits the event on the Socketio event loop
+**/
 
 Socketiop2p.prototype.on = function(type, listener) {
   var self = this;
