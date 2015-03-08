@@ -1,14 +1,14 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"/Users/tom/code/socket-io/socket.io-p2p/examples/chat/src/index.js":[function(require,module,exports){
 var Socketiop2p = require('../../../index');
 var io = require('socket.io-client');
-var connectionUrl = '/chat';
+var connectionPath = '/';
 
 var peerOpts = {};
 
 function init () {
 
   var manager = io.Manager();
-  var socket = manager.socket(connectionUrl)
+  var socket = manager.socket(connectionPath)
   var p2psocket = new Socketiop2p(peerOpts, socket);
 
   // Elements
@@ -146,7 +146,7 @@ function Socketiop2p (opts, socket) {
     var id = data.offerId || data.fromPeerId;
     var peer = self._peers[data.offerId] || self._peers[data.fromPeerId];
 
-    peer.on('signal', function signalll(signalData) {
+    peer.on('signal', function signal(signalData) {
       var signalObj = {
         signal: signalData,
         offerId: data.offerId,
@@ -173,12 +173,6 @@ function Socketiop2p (opts, socket) {
 };
 
 Emitter(Socketiop2p.prototype);
-// inherits(Socketiop2p, EventEmitter);
-
-/**
- * Overwride the inheritted 'on' method to add a listener to the socket instance
- * that emits the event on the Socketio event loop
-**/
 
 Socketiop2p.prototype.setupPeerEvents = function(peer) {
   var self = this;
@@ -194,6 +188,11 @@ Socketiop2p.prototype.setupPeerEvents = function(peer) {
     self.decoder.add(data);
   })
 }
+
+/**
+ * Overwride the inheritted 'on' method to add a listener to the socket instance
+ * that emits the event on the Socketio event loop
+**/
 
 Socketiop2p.prototype.on = function(type, listener) {
   var self = this;

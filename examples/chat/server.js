@@ -2,17 +2,15 @@ var express = require('express');
 var app = require('express')();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
+
 server.listen(3030, function() {
   console.log("Listening on 3030");
 });
 var clients = [];
-var chat = io;
 
 app.use(express.static(__dirname));
 
-var chat = io
-.of('/chat')
-.on('connection', function(socket) {
+io.on('connection', function(socket) {
 
   // Tell the new client how many other clients there are
   socket.emit('numClients', Object.keys(clients).length)

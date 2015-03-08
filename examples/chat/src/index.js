@@ -1,13 +1,13 @@
 var Socketiop2p = require('../../../index');
 var io = require('socket.io-client');
-var connectionUrl = '/chat';
+var connectionPath = '/';
 
 var peerOpts = {};
 
 function init () {
 
   var manager = io.Manager();
-  var socket = manager.socket(connectionUrl)
+  var socket = manager.socket(connectionPath)
   var p2psocket = new Socketiop2p(peerOpts, socket);
 
   // Elements
