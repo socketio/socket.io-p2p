@@ -9,7 +9,7 @@ Create a socket connection, pass it to Socketiop2p. On the Client:
 ```
 var Socketiop2p = require('socket.io-p2p');
 var io = require('socket.io-client');
-var connectionUrl = '/chat';
+var connectionPath = '/';
 var peerOpts = {};
 
 var manager = io.Manager();
