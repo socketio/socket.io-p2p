@@ -1,7 +1,8 @@
 # socketio-p2p chat example
 
-To start, run `node server.js` inside this directory. If you make changes to the `src/index.js` file, recompile `bundle.js` with:
+To start, `cd` to this directory and run the following.
 
 ```
 browserify examples/chat/src/index.js -o examples/chat/bundle.js
+node server.js
 ```
