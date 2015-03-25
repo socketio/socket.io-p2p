@@ -4,3 +4,4 @@ node_modules
 *.swn
 .DS_Store
 scratch.*
+bundle.js

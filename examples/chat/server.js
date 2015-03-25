@@ -1,7 +1,7 @@
 var express = require('express');
 var app = require('express')();
 var server = require('http').Server(app);
-var p2pserver = require('socket.io-p2p-server').Server
+var p2pserver = require('socket.io-p2p-server')
 var io = require('socket.io')(server);
 
 server.listen(3030, function() {

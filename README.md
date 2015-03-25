@@ -39,7 +39,7 @@ On server, use the [socket.io-p2p-server](https://github.com/tomcartwrightuk/soc
 ```
 var server = require('http').createServer()
 var io = require('socket.io')(server)
-var p2pserver = require('socket.io-p2p-server')
+var p2pserver = require('socket.io-p2p-server').Server
 io.use(p2pserver)
 
 server.listen(3030, function() {
