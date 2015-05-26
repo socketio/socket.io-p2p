@@ -1,3 +1,4 @@
+window.myDebug = require("debug");
 var Peer = require('simple-peer')
 var Emitter = require('component-emitter')
 var parser = require('socket.io-parser')
@@ -50,7 +51,7 @@ function Socketiop2p (opts, socket) {
         var peer = self._peers[offerId] = new Peer(peerOpts)
         peer.setMaxListeners(50)
         self.setupPeerEvents(peer)
-        peer.once('signal', function (offer) {
+        peer.on('signal', function (offer) {
           offers.push({
             offer: offer,
             offerId: offerId
@@ -121,11 +122,12 @@ Emitter(Socketiop2p.prototype)
 Socketiop2p.prototype.setupPeerEvents = function (peer) {
   var self = this
 
-  peer.on('ready', function (peer) {
+  peer.on('connect', function (peer) {
+    console.log("ready")
     self.emit('peer_ready', peer)
   })
 
-  peer.on('message', function (data) {
+  peer.on('data', function (data) {
     if (this.destroyed) return
     self.decoder.add(data)
   })
@@ -165,7 +167,10 @@ Socketiop2p.prototype.emit = function (data, cb) {
       } else if (encodedPackets) {
         for (var i = 0; i < encodedPackets.length; i++) {
           for (var peerId in self._peers) {
-            self._peers[peerId].send(encodedPackets[i])
+            var peer = self._peers[peerId]
+            if (peer._channelReady) {
+              peer.send(encodedPackets[i])
+            }
           }
         }
       } else {
