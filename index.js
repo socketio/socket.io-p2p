@@ -8,6 +8,7 @@ var bind = require('component-bind')
 var debug = require('debug')('socket')
 var hat = require('hat')
 var extend = require('extend.js')
+var rtcSupport = require('webrtcsupport')
 
 var emitfn = Emitter.prototype.emit
 
@@ -32,13 +33,15 @@ function Socketiop2p (opts, socket) {
   socket.on('numClients', function (numClients) {
     self.peerId = socket.io.engine.id
     self.numConnectedClients = numClients
-    generateOffers(function (offers) {
-      var offerObj = {
-        offers: offers,
-        fromPeerId: self.peerId
-      }
-      socket.emit('offers', offerObj)
-    })
+    if (rtcSupport.supportDataChannel) {
+      generateOffers(function (offers) {
+        var offerObj = {
+          offers: offers,
+          fromPeerId: self.peerId
+        }
+        socket.emit('offers', offerObj)
+      })
+    }
 
     function generateOffers (cb) {
       var offers = []

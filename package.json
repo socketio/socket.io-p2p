@@ -29,7 +29,8 @@
     "hat": "0.0.3",
     "simple-peer": "~5.11.0",
     "socket.io-p2p-parser": "tomcartwrightuk/socket.io-p2p-parser",
-    "to-array": "^0.1.4"
+    "to-array": "^0.1.4",
+    "webrtcsupport": "^2.1.2"
   },
   "devDependencies": {
     "expect": "^1.1.0",
