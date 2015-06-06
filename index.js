@@ -1,4 +1,4 @@
-window.myDebug = require("debug");
+window.myDebug = require("debug")
 var Peer = require('simple-peer')
 var Emitter = require('component-emitter')
 var parser = require('socket.io-parser')
@@ -15,6 +15,7 @@ var emitfn = Emitter.prototype.emit
 function Socketiop2p (opts, socket) {
   var self = this
   self.useSockets = true
+  self.usePeerConnection = false
   self.decoder = new parser.Decoder(this)
   self.decoder.on('decoded', bind(this, this.ondecoded))
   self.socket = socket
@@ -156,9 +157,7 @@ Socketiop2p.prototype.emit = function (data, cb) {
 
   if (this._peerEvents.hasOwnProperty(data) || argsObj.fromSocket) {
     emitfn.apply(this, arguments)
-  } else if (this.useSockets) {
-    this.socket.emit(data, cb)
-  } else {
+  } else if (this.usePeerConnection || !this.useSockets) {
     var args = toArray(arguments)
     var parserType = parser.EVENT // default
     if (hasBin(args)) { parserType = parser.BINARY_EVENT } // binary
@@ -180,6 +179,8 @@ Socketiop2p.prototype.emit = function (data, cb) {
         throw new Error('Encoding error')
       }
     })
+  } else {
+    this.socket.emit(data, cb)
   }
 }
 
