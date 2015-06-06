@@ -19,7 +19,7 @@ p2psocket.on('ready', function() {
   p2psocket.emit('peer-obj', {peerId: peerId})
 })
 
-// This event will be triggered over socket transport until `useSockets` is set to `false`
+// This event will be triggered over socket transport until `usePeerConnection` is set to `true`
 p2psocket.on('peer-msg', function(data) {
   console.log(data)
 })
