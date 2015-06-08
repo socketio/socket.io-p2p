@@ -1,10 +1,8 @@
-# Socket.io-P2P
+# socket.io-p2p
 
-This module provides a simple way to setup a WebRTC connection between peers and communicate using the [socket.io-protocol](https://github.com/Automattic/socket.io-protocol). 
+This module provides an **easy** and **reliable** way to setup a WebRTC connection between peers and communicate using events (the [socket.io-protocol](https://github.com/Automattic/socket.io-protocol)).
 
-It uses socket.io to transport [signalling data](http://www.html5rocks.com/en/tutorials/webrtc/infrastructure/#what-is-signaling) in the background - connections are easy to establish. 
-
-Socket.io is used as the default transport and the connection can be upgraded to use `PeerConnection` in clients that support WebRTC by setting `usePeerConnection` to `true`.
+Socket.IO is used to transport [signalling data](http://www.html5rocks.com/en/tutorials/webrtc/infrastructure/#what-is-signaling) and as a fallback for clients where WebRTC `PeerConnection` is not supported.
 
 ## How to use
 
