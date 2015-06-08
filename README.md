@@ -1,4 +1,4 @@
-# socket.io-p2p
+![](https://cldup.com/95U80xyuHq.svg)
 
 This module provides an **easy** and **reliable** way to setup a WebRTC connection between peers and communicate using events (the [socket.io-protocol](https://github.com/Automattic/socket.io-protocol)).
 
