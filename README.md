@@ -5,23 +5,23 @@ This module provides a simple way to setup a WebRTC connection between peers and
 
 ## How to use
 
-Create a socket connection, pass it to Socketiop2p. On the Client:
+Create a socket connection, pass it to `P2P`. On the Client:
 
 ```js
 var P2P = require('socket.io-p2p');
 var io = require('socket.io-client');
 var socket = io();
 
-var p2psocket = new P2P({}, socket);
+var p2p = new P2P({}, socket);
 
-p2psocket.on('ready', function(){
-  p2psocket.usePeerConnection = true;
-  p2psocket.emit('peer-obj', { peerId: peerId });
+p2p.on('ready', function(){
+  p2p.usePeerConnection = true;
+  p2p.emit('peer-obj', { peerId: peerId });
 })
 
 // this event will be triggered over the socket transport 
 // until `usePeerConnection` is set to `true`
-p2psocket.on('peer-msg', function(data){
+p2p.on('peer-msg', function(data){
   console.log(data);
 });
 ```
