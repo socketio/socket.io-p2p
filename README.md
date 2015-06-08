@@ -4,7 +4,7 @@ This module provides an **easy** and **reliable** way to setup a WebRTC connecti
 
 Socket.IO is used to transport [signalling data](http://www.html5rocks.com/en/tutorials/webrtc/infrastructure/#what-is-signaling) and as a fallback for clients where WebRTC `PeerConnection` is not supported.
 
-## How to use
+### How to use
 
 Create a socket connection, pass it to `P2P`. On the Client:
 
@@ -52,7 +52,7 @@ io.on('connection', function(socket){
 });
 ```
 
-## Roadmap of development
+### Roadmap of development
 
 - Support for packets containing multiple binary blobs - packets can only contain one blob in this version
 - Allow a peer to act as a relay between peers that don't support PeerConnection and those that do.
