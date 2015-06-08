@@ -7,54 +7,48 @@ This module provides a simple way to setup a WebRTC connection between peers and
 
 Create a socket connection, pass it to Socketiop2p. On the Client:
 
-```
-var Socketiop2p = require('socket.io-p2p')
-var io = require('socket.io-client')
-var socket = io()
+```js
+var P2P = require('socket.io-p2p');
+var io = require('socket.io-client');
+var socket = io();
 
-var p2psocket = new Socketiop2p({}, socket)
+var p2psocket = new P2P({}, socket);
 
-p2psocket.on('ready', function() {
-  p2psocket.usePeerConnection = true
-  p2psocket.emit('peer-obj', {peerId: peerId})
+p2psocket.on('ready', function(){
+  p2psocket.usePeerConnection = true;
+  p2psocket.emit('peer-obj', { peerId: peerId });
 })
 
-// This event will be triggered over socket transport until `usePeerConnection` is set to `true`
-p2psocket.on('peer-msg', function(data) {
-  console.log(data)
-})
-
+// this event will be triggered over the socket transport 
+// until `usePeerConnection` is set to `true`
+p2psocket.on('peer-msg', function(data){
+  console.log(data);
+});
 ```
 
-On server, use the [socket.io-p2p-server](https://github.com/tomcartwrightuk/socket.io-p2p-server) to take care of signalling. All clients who support WebRTC data connections will exchange signalling data via the default `/` namespace.
+On the server, use the [socket.io-p2p-server](https://github.com/tomcartwrightuk/socket.io-p2p-server) to take care of signalling. All clients who support WebRTC data connections will exchange signalling data via the default `/` namespace.
 
-```
-var server = require('http').createServer()
-var io = require('socket.io')(server)
-var p2pserver = require('socket.io-p2p-server').Server
-io.use(p2pserver)
-
-server.listen(3030)
-
+```js
+var server = require('http').createServer();
+var io = require('socket.io')(server);
+var p2p = require('socket.io-p2p-server').Server;
+io.use(p2p);
+server.listen(3030);
 ```
 
-WebRTC Peer connections can also be established by exchanging signalling data witin a socket.io room. Do this by calling the `p2pserver` within the `connection` callback:
+WebRTC Peer connections can also be established by exchanging signalling data witin a socket.io room. Do this by calling the `p2p` server within the `connection` callback:
 
 ```
+var server = require('http').createServer();
+var io = require('socket.io')(server);
+var p2p = require('socket.io-p2p-server').Server;
+server.listen(3030);
 
-var server = require('http').createServer()
-var io = require('socket.io')(server)
-var p2pserver = require('socket.io-p2p-server').Server
-
-server.listen(3030)
-
-io.on('connection', function(socket) {
-  clients[socket.id] = socket
-  socket.join(roomName)
-  p2pserver(socket, null, room)
-})
-
-
+io.on('connection', function(socket){
+  clients[socket.id] = socket;
+  socket.join(roomName);
+  p2p(socket, null, room);
+});
 ```
 
 ## Roadmap of development
