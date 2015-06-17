@@ -1,4 +1,4 @@
-window.myDebug = require("debug")
+window.myDebug = require('debug')
 var Peer = require('simple-peer')
 var Emitter = require('component-emitter')
 var parser = require('socket.io-parser')
@@ -24,6 +24,7 @@ function Socketiop2p (opts, socket) {
   self.numClients = opts.numClients || 5
   self.numConnectedClients
   self.readyPeers = 0
+  self.ready = false
   self._peerEvents = {
                    ready: 1,
                    error: 1,
@@ -62,6 +63,11 @@ function Socketiop2p (opts, socket) {
           })
           checkDone()
         })
+
+        peer.on('error', function (err) {
+          emitfn.call(this, 'peer-error', err)
+          debug('Error in peer %s', err)
+        })
       }
 
       function checkDone () {
@@ -88,6 +94,11 @@ function Socketiop2p (opts, socket) {
       }
       socket.emit('peer-signal', signalObj)
     })
+
+    peer.on('error', function (err) {
+      emitfn.call(this, 'peer-error', err)
+      debug('Error in peer %s', err)
+    })
     peer.signal(data.offer)
   })
 
@@ -105,16 +116,13 @@ function Socketiop2p (opts, socket) {
       socket.emit('peer-signal', signalObj)
     })
 
-    // TODO Handle errors properly
-    peer.on('error', function (err) {
-      debug('Error in peer %s', err)
-    })
     peer.signal(data.signal)
   })
 
   self.on('peer_ready', function (peer) {
     self.readyPeers++
-    if (self.readyPeers === self.numConnectedClients) {
+    if (self.readyPeers >= self.numConnectedClients && !self.ready) {
+      self.ready = true
       self.emit('ready')
     }
   })
@@ -127,7 +135,6 @@ Socketiop2p.prototype.setupPeerEvents = function (peer) {
   var self = this
 
   peer.on('connect', function (peer) {
-    console.log("ready")
     self.emit('peer_ready', peer)
   })
 
@@ -145,7 +152,7 @@ Socketiop2p.prototype.setupPeerEvents = function (peer) {
 Socketiop2p.prototype.on = function (type, listener) {
   var self = this
   this.socket.addEventListener(type, function (data) {
-    emitfn.apply(self, [type, data])
+    emitfn.call(self, type, data)
   })
   this.addEventListener(type, listener)
 }
@@ -165,15 +172,10 @@ Socketiop2p.prototype.emit = function (data, cb) {
 
     encoder.encode(packet, function (encodedPackets) {
       if (encodedPackets[1] instanceof ArrayBuffer) {
-        if (self._channel) self._sendArray(encodedPackets)
+        self._sendArray(encodedPackets)
       } else if (encodedPackets) {
         for (var i = 0; i < encodedPackets.length; i++) {
-          for (var peerId in self._peers) {
-            var peer = self._peers[peerId]
-            if (peer._channelReady) {
-              peer.send(encodedPackets[i])
-            }
-          }
+          self._send(encodedPackets[i])
         }
       } else {
         throw new Error('Encoding error')
@@ -196,8 +198,18 @@ Socketiop2p.prototype._sendArray = function (arr) {
   var arrLength = arr[1].byteLength
   var nChunks = Math.ceil(arrLength / interval)
   var packetData = firstPacket.substr(0, 1) + nChunks + firstPacket.substr(firstPacket.indexOf('-'))
-  this.send(packetData)
-  this.binarySlice(arr[1], interval, this.send)
+  this._send(packetData)
+  this.binarySlice(arr[1], interval, this._send)
+}
+
+Socketiop2p.prototype._send = function (data) {
+  var self = this
+  for (var peerId in self._peers) {
+    var peer = self._peers[peerId]
+    if (peer._channelReady) {
+      peer.send(data)
+    }
+  }
 }
 
 Socketiop2p.prototype.binarySlice = function (arr, interval, callback) {
