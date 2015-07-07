@@ -123,6 +123,7 @@ function Socketiop2p (opts, socket) {
     self.readyPeers++
     if (self.readyPeers >= self.numConnectedClients && !self.ready) {
       self.ready = true
+      if (!opts.autoUpgrade) self.usePeerConnection = true
       self.emit('ready')
     }
   })
