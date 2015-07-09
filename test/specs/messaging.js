@@ -6,13 +6,24 @@ var manager2 = io.Manager()
 var peerOpts = {}
 
 test('it should receive utf8 multibyte characters', function (t) {
-  var socket1 = manager1.socket('/array')
-  var socket2 = manager2.socket('/array')
-  var p2p1 = new P2P(peerOpts, socket1)
-  var p2p2 = new P2P(peerOpts, socket2)
   t.plan(3)
+  var namespace = '/array'
+  var socket1, socket2, p2p1, p2p2
 
-  p2p2.once('ready', function () {
+  setTimeout(function () {
+    socket1 = manager1.socket(namespace)
+    p2p1 = new P2P(peerOpts, socket1)
+  }, 25)
+
+  setTimeout(function () {
+    socket2 = manager2.socket(namespace)
+    p2p2 = new P2P(peerOpts, socket2)
+    p2p2.on('ready', function () {
+      runTest()
+    })
+  }, 50)
+
+  function runTest () {
     p2p1.usePeerConnection = true
     p2p2.usePeerConnection = true
 
@@ -49,19 +60,30 @@ test('it should receive utf8 multibyte characters', function (t) {
         p2p2.disconnect()
       }
     }
-  })
+  }
 })
 
 test('it should send and receive binary data', function (t) {
   t.plan(1)
-  var socket1 = manager1.socket('/blob')
-  var socket2 = manager2.socket('/blob')
-  var p2p1 = new P2P(peerOpts, socket1)
-  var p2p2 = new P2P(peerOpts, socket2)
+  var namespace = '/blob'
+  var socket1, socket2, p2p1, p2p2
+
+  setTimeout(function () {
+    socket1 = manager1.socket(namespace)
+    p2p1 = new P2P(peerOpts, socket1)
+  }, 25)
+
+  setTimeout(function () {
+    socket2 = manager2.socket(namespace)
+    p2p2 = new P2P(peerOpts, socket2)
+    p2p2.on('ready', function () {
+      runTest()
+    })
+  }, 50)
 
   var binaryPacket = {data: new Uint8Array(16)}
 
-  p2p2.on('ready', function () {
+  function runTest () {
     p2p1.usePeerConnection = true
     p2p2.usePeerConnection = true
     p2p1.once('binary-packet', function (data) {
@@ -70,5 +92,5 @@ test('it should send and receive binary data', function (t) {
     })
 
     p2p2.emit('binary-packet', binaryPacket)
-  })
+  }
 })
