@@ -42,6 +42,6 @@
     "tape": "~3.0.0"
   },
   "scripts": {
-    "test": "zuul -- test/index.js"
+    "test": "zuul -- test/specs/*.js"
   }
 }
