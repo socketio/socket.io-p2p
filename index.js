@@ -26,7 +26,7 @@ function Socketiop2p (opts, socket) {
   self.readyPeers = 0
   self.ready = false
   self._peerEvents = {
-                   ready: 1,
+                   upgrade: 1,
                    error: 1,
                    peer_signal: 1,
                    peer_ready: 1
@@ -124,7 +124,7 @@ function Socketiop2p (opts, socket) {
     if (self.readyPeers >= self.numConnectedClients && !self.ready) {
       self.ready = true
       if (!opts.autoUpgrade) self.usePeerConnection = true
-      self.emit('ready')
+      self.emit('upgrade')
     }
   })
 

@@ -18,7 +18,7 @@ test('it should receive utf8 multibyte characters', function (t) {
   setTimeout(function () {
     socket2 = manager2.socket(namespace)
     p2p2 = new P2P(peerOpts, socket2)
-    p2p2.on('ready', function () {
+    p2p2.on('upgrade', function () {
       runTest()
     })
   }, 50)
@@ -76,7 +76,7 @@ test('it should send and receive binary data', function (t) {
   setTimeout(function () {
     socket2 = manager2.socket(namespace)
     p2p2 = new P2P(peerOpts, socket2)
-    p2p2.on('ready', function () {
+    p2p2.on('upgrade', function () {
       runTest()
     })
   }, 50)

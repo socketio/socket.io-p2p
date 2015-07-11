@@ -24,7 +24,7 @@ test('it should support multi-way communication', function (t) {
   setTimeout(function () {
     socket3 = manager3.socket(namespace)
     p2p3 = new Socketiop2p(peerOpts, socket3)
-    p2p3.on('ready', function () {
+    p2p3.on('upgrade', function () {
       runTest()
     })
   }, 75)
@@ -58,7 +58,7 @@ test('Socket inter-operability', function (t) {
   setTimeout(function () {
     socket2 = manager2.socket(namespace)
     p2p2 = new Socketiop2p(peerOpts, socket2)
-    p2p2.on('ready', function () {
+    p2p2.on('upgrade', function () {
       runTest()
     })
   }, 50)
