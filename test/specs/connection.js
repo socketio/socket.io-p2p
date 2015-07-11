@@ -4,30 +4,19 @@ var io = require('socket.io-client')
 var manager1 = io.Manager()
 var manager2 = io.Manager()
 var manager3 = io.Manager()
-var peerOpts = {}
+var peerOpts = {trickle: false}
 
 test('it should support multi-way communication', function (t) {
   t.plan(2)
   var namespace = '/multi'
-  var socket1, socket2, socket3, p2p1, p2p2, p2p3
+  var socket1 = manager1.socket(namespace)
+  var p2p1 = new Socketiop2p(socket1, peerOpts)
 
-  setTimeout(function () {
-    socket1 = manager1.socket(namespace)
-    p2p1 = new Socketiop2p(peerOpts, socket1)
-  }, 25)
+  var socket2 = manager2.socket(namespace)
+  var p2p2 = new Socketiop2p(socket2, peerOpts)
 
-  setTimeout(function () {
-    socket2 = manager2.socket(namespace)
-    p2p2 = new Socketiop2p(peerOpts, socket2)
-  }, 50)
-
-  setTimeout(function () {
-    socket3 = manager3.socket(namespace)
-    p2p3 = new Socketiop2p(peerOpts, socket3)
-    p2p3.on('ready', function () {
-      runTest()
-    })
-  }, 75)
+  var socket3 = manager3.socket(namespace)
+  var p2p3 = new Socketiop2p(socket3, peerOpts, runTest)
 
   var readyPeers = {}
   var jsonObj = {ping: 'pong', ding: {dong: 'song'}}
@@ -48,20 +37,11 @@ test('it should support multi-way communication', function (t) {
 test('Socket inter-operability', function (t) {
   t.plan(2)
   var namespace = '/inter'
-  var socket1, socket2, p2p1, p2p2
+  var socket1 = manager1.socket(namespace)
+  var p2p1 = new Socketiop2p(socket1, peerOpts)
 
-  setTimeout(function () {
-    socket1 = manager1.socket(namespace)
-    p2p1 = new Socketiop2p(peerOpts, socket1)
-  }, 25)
-
-  setTimeout(function () {
-    socket2 = manager2.socket(namespace)
-    p2p2 = new Socketiop2p(peerOpts, socket2)
-    p2p2.on('ready', function () {
-      runTest()
-    })
-  }, 50)
+  var socket2 = manager2.socket(namespace)
+  var p2p2 = new Socketiop2p(socket2, peerOpts, runTest)
 
   function runTest () {
     var jsonObj = {ping: 'pong', ding: {dong: 'song'}}
@@ -82,5 +62,16 @@ test('Socket inter-operability', function (t) {
     })
     p2p1.emit('socket-obj', jsonObj)
   }
+})
 
+test('Optional callback is called on upgrade', function (t) {
+  t.plan(1)
+  var namespace = '/cb'
+  var socket1 = manager1.socket(namespace)
+  var p2p1 = new Socketiop2p(socket1, peerOpts)
+
+  var socket2 = manager2.socket(namespace)
+  var p2p2 = new Socketiop2p(socket2, peerOpts, function () {
+    t.pass('Callback was called')
+  })
 })
