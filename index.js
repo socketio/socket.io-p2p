@@ -12,7 +12,7 @@ var rtcSupport = require('webrtcsupport')
 
 var emitfn = Emitter.prototype.emit
 
-function Socketiop2p (opts, socket) {
+function Socketiop2p (socket, opts) {
   var self = this
   self.useSockets = true
   self.usePeerConnection = false
@@ -25,6 +25,7 @@ function Socketiop2p (opts, socket) {
   self.numConnectedClients
   self.readyPeers = 0
   self.ready = false
+  self.trickle = opts.trickle !== undefined ? opts.trickle : true
   self._peerEvents = {
                    upgrade: 1,
                    error: 1,
@@ -52,7 +53,7 @@ function Socketiop2p (opts, socket) {
       }
       function generateOffer () {
         var offerId = hat(160)
-        var peerOpts = extend(opts, {initiator: true, trickle: true})
+        var peerOpts = extend(opts, {initiator: true, trickle: self.trickle})
         var peer = self._peers[offerId] = new Peer(peerOpts)
         peer.setMaxListeners(50)
         self.setupPeerEvents(peer)
@@ -80,7 +81,7 @@ function Socketiop2p (opts, socket) {
   })
 
   socket.on('offer', function (data) {
-    var peerOpts = extend(opts, {initiator: false, trickle: true})
+    var peerOpts = extend(opts, {initiator: false, trickle: self.trickle})
     var peer = self._peers[data.fromPeerId] = new Peer(peerOpts)
     self.numConnectedClients++
     peer.setMaxListeners(50)
