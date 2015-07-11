@@ -19,3 +19,6 @@ server.of('/multi')
 
 server.of('/blob')
 .use(p2pserver)
+
+server.of('/cb')
+.use(p2pserver)

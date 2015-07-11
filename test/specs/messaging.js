@@ -12,10 +12,7 @@ test('it should receive utf8 multibyte characters', function (t) {
   var p2p1 = new P2P(socket1, peerOpts)
 
   var socket2 = manager2.socket(namespace)
-  var p2p2 = new P2P(socket2, peerOpts)
-  p2p2.on('upgrade', function () {
-    runTest()
-  })
+  var p2p2 = new P2P(socket2, peerOpts, runTest)
 
   function runTest () {
     p2p1.usePeerConnection = true
@@ -64,10 +61,7 @@ test('it should send and receive binary data', function (t) {
   var p2p1 = new P2P(socket1, peerOpts)
 
   var socket2 = manager2.socket(namespace)
-  var p2p2 = new P2P(socket2, peerOpts)
-  p2p2.on('upgrade', function () {
-    runTest()
-  })
+  var p2p2 = new P2P(socket2, peerOpts, runTest)
 
   var binaryPacket = {data: new Uint8Array(16)}
 

@@ -16,10 +16,7 @@ test('it should support multi-way communication', function (t) {
   var p2p2 = new Socketiop2p(socket2, peerOpts)
 
   var socket3 = manager3.socket(namespace)
-  var p2p3 = new Socketiop2p(socket3, peerOpts)
-  p2p3.on('upgrade', function () {
-    runTest()
-  })
+  var p2p3 = new Socketiop2p(socket3, peerOpts, runTest)
 
   var readyPeers = {}
   var jsonObj = {ping: 'pong', ding: {dong: 'song'}}
@@ -44,10 +41,7 @@ test('Socket inter-operability', function (t) {
   var p2p1 = new Socketiop2p(socket1, peerOpts)
 
   var socket2 = manager2.socket(namespace)
-  var p2p2 = new Socketiop2p(socket2, peerOpts)
-  p2p2.on('upgrade', function () {
-    runTest()
-  })
+  var p2p2 = new Socketiop2p(socket2, peerOpts, runTest)
 
   function runTest () {
     var jsonObj = {ping: 'pong', ding: {dong: 'song'}}
@@ -68,4 +62,16 @@ test('Socket inter-operability', function (t) {
     })
     p2p1.emit('socket-obj', jsonObj)
   }
+})
+
+test('Optional callback is called on upgrade', function (t) {
+  t.plan(1)
+  var namespace = '/cb'
+  var socket1 = manager1.socket(namespace)
+  var p2p1 = new Socketiop2p(socket1, peerOpts)
+
+  var socket2 = manager2.socket(namespace)
+  var p2p2 = new Socketiop2p(socket2, peerOpts, function () {
+    t.pass('Callback was called')
+  })
 })

@@ -12,13 +12,14 @@ var rtcSupport = require('webrtcsupport')
 
 var emitfn = Emitter.prototype.emit
 
-function Socketiop2p (socket, opts) {
+function Socketiop2p (socket, opts, cb) {
   var self = this
   self.useSockets = true
   self.usePeerConnection = false
   self.decoder = new parser.Decoder(this)
   self.decoder.on('decoded', bind(this, this.ondecoded))
   self.socket = socket
+  self.cb = cb
   self.opts = opts
   self._peers = {}
   self.numClients = opts.numClients || 5
@@ -125,6 +126,7 @@ function Socketiop2p (socket, opts) {
     if (self.readyPeers >= self.numConnectedClients && !self.ready) {
       self.ready = true
       if (!opts.autoUpgrade) self.usePeerConnection = true
+      if (typeof self.cb === 'function') self.cb()
       self.emit('upgrade')
     }
   })
