@@ -1,26 +1,20 @@
 var Socketiop2p = require('../../../index');
 var io = require('socket.io-client');
 
-var peerOpts = {};
-
 function init () {
 
   var socket = io();
-  var p2psocket = new Socketiop2p(peerOpts, socket);
+  var peerOpts = {trickle: false, autoUpgrade: false};
+  var p2psocket = new Socketiop2p(socket, peerOpts, function () {
+    privateButton.disabled = false;
+    p2psocket.emit('peer-obj', 'Hello there. I am ' + p2psocket.peerId);
+  });
 
   // Elements
   var privateButton = document.getElementById('private');
   var form = document.getElementById('msg-form');
   var box = document.getElementById('msg-box');
   var msgList = document.getElementById('msg-list');
-
-  var jsonObj = {ping: 'pong', ding: {dong: 'song'}};
-  p2psocket.on('ready', function() {
-    console.log("socketp2p ready");
-    console.log(p2psocket.peerId);
-    privateButton.disabled = false;
-    p2psocket.emit('peer-obj', 'Hello there. I am ' + p2psocket.peerId)
-  });
 
   p2psocket.on('peer-msg', function(data) {
     var li = document.createElement("li");
@@ -34,16 +28,22 @@ function init () {
     li.appendChild(document.createTextNode(box.value));
     msgList.appendChild(li);
     p2psocket.emit('peer-msg', box.value)
-  });
-
-  p2psocket.on('go-private', function() {
-    p2psocket.useSockets = false;
+    box.value = '';
   });
 
   privateButton.addEventListener('click', function(e) {
-    p2psocket.useSockets = false;
+    goPrivate();
     p2psocket.emit('go-private', true)
   })
+
+  p2psocket.on('go-private', function () {
+    goPrivate();
+  });
+
+  function goPrivate () {
+    p2psocket.useSockets = false;
+    privateButton.disabled = true;
+  }
 
 }
 

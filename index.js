@@ -20,19 +20,22 @@ function Socketiop2p (socket, opts, cb) {
   self.decoder.on('decoded', bind(this, this.ondecoded))
   self.socket = socket
   self.cb = cb
-  self.opts = opts
   self._peers = {}
-  self.numClients = opts.numClients || 5
-  self.numConnectedClients
   self.readyPeers = 0
   self.ready = false
-  self.trickle = opts.trickle !== undefined ? opts.trickle : true
   self._peerEvents = {
                    upgrade: 1,
                    error: 1,
                    peer_signal: 1,
                    peer_ready: 1
                  }
+  var defaultOpts = {
+    autoUpgrade: true,
+    trickle: true,
+    numClients: 5
+  }
+  self.opts = extend(defaultOpts, (opts || {}))
+  self.numConnectedClients
 
   socket.on('numClients', function (numClients) {
     self.peerId = socket.io.engine.id
@@ -49,12 +52,12 @@ function Socketiop2p (socket, opts, cb) {
 
     function generateOffers (cb) {
       var offers = []
-      for (var i = 0; i < self.numClients; ++i) {
+      for (var i = 0; i < self.opts.numClients; ++i) {
         generateOffer()
       }
       function generateOffer () {
         var offerId = hat(160)
-        var peerOpts = extend(opts, {initiator: true, trickle: self.trickle})
+        var peerOpts = extend(self.opts, {initiator: true})
         var peer = self._peers[offerId] = new Peer(peerOpts)
         peer.setMaxListeners(50)
         self.setupPeerEvents(peer)
@@ -73,8 +76,8 @@ function Socketiop2p (socket, opts, cb) {
       }
 
       function checkDone () {
-        if (offers.length === self.numClients) {
-          debug('generated %s offers', self.numClients)
+        if (offers.length === self.opts.numClients) {
+          debug('generated %s offers', self.opts.numClients)
           cb(offers)
         }
       }
@@ -82,7 +85,7 @@ function Socketiop2p (socket, opts, cb) {
   })
 
   socket.on('offer', function (data) {
-    var peerOpts = extend(opts, {initiator: false, trickle: self.trickle})
+    var peerOpts = extend(self.opts, {initiator: false})
     var peer = self._peers[data.fromPeerId] = new Peer(peerOpts)
     self.numConnectedClients++
     peer.setMaxListeners(50)
@@ -125,7 +128,7 @@ function Socketiop2p (socket, opts, cb) {
     self.readyPeers++
     if (self.readyPeers >= self.numConnectedClients && !self.ready) {
       self.ready = true
-      if (!opts.autoUpgrade) self.usePeerConnection = true
+      if (self.opts.autoUpgrade) self.usePeerConnection = true
       if (typeof self.cb === 'function') self.cb()
       self.emit('upgrade')
     }
