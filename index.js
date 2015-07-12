@@ -239,4 +239,11 @@ Socketiop2p.prototype.disconnect = function () {
   }
 }
 
+/**
+ * Use peerConnection instead of socket.io one.
+**/
+Socketiop2p.prototype.upgrade = function () {
+  this.usePeerConnection = true
+}
+
 module.exports = Socketiop2p
