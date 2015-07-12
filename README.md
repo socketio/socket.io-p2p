@@ -66,6 +66,8 @@ The `opts` object can include options for setup of the overall socket.io-p2p con
 - `autoUpgrade` - upgrade to a p2p connection (from s.io one) when peers are ready; `true` by default
 - `peerOpts` - object of options to be passed to underlying peers. See [here](https://github.com/feross/simple-peer/blob/master/README.md#api) for currently supported options.
 
+`cb` is an optional callback. Called when connection is upgraded to a WebRTC connection.
+
 ### `p2psocket.on('upgrade', function (data) {})`
 
 Triggered when P2P connection is converted to a WebRTC one.
