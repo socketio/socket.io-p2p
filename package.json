@@ -1,7 +1,7 @@
 {
   "name": "socket.io-p2p",
   "description": "WebRTC data channel communication with a socket.io-like API",
-  "version": "1.3.2",
+  "version": "2.0.0",
   "author": {
     "name": "Tom Cartwright",
     "email": "tecartwright@gmail.com",
