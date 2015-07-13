@@ -9,10 +9,10 @@ test('it should receive utf8 multibyte characters', function (t) {
   t.plan(3)
   var namespace = '/array'
   var socket1 = manager1.socket(namespace)
-  var p2p1 = new P2P(socket1, peerOpts)
+  var p2p1 = new P2P(socket1, {peerOpts: peerOpts})
 
   var socket2 = manager2.socket(namespace)
-  var p2p2 = new P2P(socket2, peerOpts, runTest)
+  var p2p2 = new P2P(socket2, {peerOpts: peerOpts}, runTest)
 
   function runTest () {
     p2p1.usePeerConnection = true
@@ -58,10 +58,10 @@ test('it should send and receive binary data', function (t) {
   t.plan(1)
   var namespace = '/blob'
   var socket1 = manager1.socket(namespace)
-  var p2p1 = new P2P(socket1, peerOpts)
+  var p2p1 = new P2P(socket1, {peerOpts: peerOpts})
 
   var socket2 = manager2.socket(namespace)
-  var p2p2 = new P2P(socket2, peerOpts, runTest)
+  var p2p2 = new P2P(socket2, {peerOpts: peerOpts}, runTest)
 
   var binaryPacket = {data: new Uint8Array(16)}
 

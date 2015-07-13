@@ -4,8 +4,8 @@ var io = require('socket.io-client');
 function init () {
 
   var socket = io();
-  var peerOpts = {trickle: false, autoUpgrade: false};
-  var p2psocket = new Socketiop2p(socket, peerOpts, function () {
+  var opts = {peerOpts: {trickle: false}, autoUpgrade: false};
+  var p2psocket = new Socketiop2p(socket, opts, function () {
     privateButton.disabled = false;
     p2psocket.emit('peer-obj', 'Hello there. I am ' + p2psocket.peerId);
   });

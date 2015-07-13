@@ -31,10 +31,10 @@ function Socketiop2p (socket, opts, cb) {
                  }
   var defaultOpts = {
     autoUpgrade: true,
-    trickle: true,
     numClients: 5
   }
   self.opts = extend(defaultOpts, (opts || {}))
+  self.peerOpts = self.opts.peerOpts || {}
   self.numConnectedClients
 
   socket.on('numClients', function (numClients) {
@@ -57,7 +57,7 @@ function Socketiop2p (socket, opts, cb) {
       }
       function generateOffer () {
         var offerId = hat(160)
-        var peerOpts = extend(self.opts, {initiator: true})
+        var peerOpts = extend(self.peerOpts, {initiator: true})
         var peer = self._peers[offerId] = new Peer(peerOpts)
         peer.setMaxListeners(50)
         self.setupPeerEvents(peer)
@@ -85,7 +85,7 @@ function Socketiop2p (socket, opts, cb) {
   })
 
   socket.on('offer', function (data) {
-    var peerOpts = extend(self.opts, {initiator: false})
+    var peerOpts = extend(self.peerOpts, {initiator: false})
     var peer = self._peers[data.fromPeerId] = new Peer(peerOpts)
     self.numConnectedClients++
     peer.setMaxListeners(50)
@@ -237,6 +237,13 @@ Socketiop2p.prototype.disconnect = function () {
     peer.destroy()
     this.socket.disconnect()
   }
+}
+
+/**
+ * Use peerConnection instead of socket.io one.
+**/
+Socketiop2p.prototype.upgrade = function () {
+  this.usePeerConnection = true
 }
 
 module.exports = Socketiop2p
