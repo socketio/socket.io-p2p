@@ -15,6 +15,7 @@ function init () {
   var form = document.getElementById('msg-form');
   var box = document.getElementById('msg-box');
   var msgList = document.getElementById('msg-list');
+  var upgradeMsg = document.getElementById('upgrade-msg');
 
   p2psocket.on('peer-msg', function(data) {
     var li = document.createElement("li");
@@ -42,6 +43,7 @@ function init () {
 
   function goPrivate () {
     p2psocket.useSockets = false;
+    upgradeMsg.innerHTML = "WebRTC connection established!";
     privateButton.disabled = true;
   }
 
