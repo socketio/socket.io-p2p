@@ -8,13 +8,13 @@
     "url": "http://tomcartwright.net"
   },
   "bugs": {
-    "url": "https://github.com/tomcartwrightuk/socket.io-p2p/issues"
+    "url": "https://github.com/socketio/socket.io-p2p/issues"
   },
   "license": "MIT",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/tomcartwrightuk/socket.io-p2p.git"
+    "url": "git@github.com:socketio/socket.io-p2p.git"
   },
   "keywords": [
     "webrtc",
