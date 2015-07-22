@@ -27,7 +27,8 @@ function Socketiop2p (socket, opts, cb) {
                    upgrade: 1,
                    error: 1,
                    peer_signal: 1,
-                   peer_ready: 1
+                   peer_ready: 1,
+                   stream: 1
                  }
   var defaultOpts = {
     autoUpgrade: true,
@@ -148,6 +149,10 @@ Socketiop2p.prototype.setupPeerEvents = function (peer) {
   peer.on('data', function (data) {
     if (this.destroyed) return
     self.decoder.add(data)
+  })
+
+  peer.on('stream', function (stream) {
+    self.emit('stream', stream)
   })
 }
 
