@@ -37,7 +37,7 @@ io.use(p2p);
 server.listen(3030);
 ```
 
-WebRTC Peer connections can also be established by exchanging signalling data witin a socket.io room. Do this by calling the `p2p` server within the `connection` callback:
+WebRTC Peer connections can also be established by exchanging signalling data within a socket.io room. Do this by calling the `p2p` server within the `connection` callback:
 
 ```js
 var server = require('http').createServer();
