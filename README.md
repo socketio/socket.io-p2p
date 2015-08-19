@@ -27,6 +27,8 @@ p2p.on('peer-msg', function(data){
 });
 ```
 
+If you're not using browserify, then use the included standalone file `socketiop2p.min.js`. This exports a `P2P` constructor on `window`.
+
 On the server, use the [socket.io-p2p-server](https://github.com/tomcartwrightuk/socket.io-p2p-server) to take care of signalling. All clients who support WebRTC data connections will exchange signalling data via the default `/` namespace.
 
 ```js
