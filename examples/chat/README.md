@@ -1,8 +1,8 @@
 # socketio-p2p chat example
 
-To start, `cd` to this directory and run the following.
+To start, `cd` to this directory (`examples/chat`) and run the following.
 
 ```
-browserify examples/chat/src/index.js -o examples/chat/bundle.js
+browserify src/index.js -o bundle.js
 node server.js
 ```
