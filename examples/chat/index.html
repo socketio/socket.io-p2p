@@ -12,6 +12,8 @@
   <form action="#" id="msg-form">
     <label>Enter message</label>
     <input type="text" name="lname" id="msg-box" size="40">
+    <label>Select file to send</label>
+    <input type="file" name="filename" id="msg-file" size="40">
     <input type="submit" value="Submit">
   </form>
   <br />
@@ -32,6 +34,10 @@
     li {
       padding: 5px 0;
       border-top: 1px dashed #CCC;
+    }
+    input, label {
+      margin-top: 10px;
+      display: block;
     }
   </style>
   <script src="/adapter.js"></script>

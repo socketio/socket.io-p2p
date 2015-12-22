@@ -14,12 +14,27 @@ function init () {
   var privateButton = document.getElementById('private');
   var form = document.getElementById('msg-form');
   var box = document.getElementById('msg-box');
+  var boxFile = document.getElementById('msg-file');
   var msgList = document.getElementById('msg-list');
   var upgradeMsg = document.getElementById('upgrade-msg');
 
   p2psocket.on('peer-msg', function(data) {
     var li = document.createElement("li");
-    li.appendChild(document.createTextNode(data));
+    li.appendChild(document.createTextNode(data.textVal));
+    msgList.appendChild(li);
+  });
+
+  p2psocket.on('peer-file', function(data) {
+    var li = document.createElement("li");
+    var fileBytes = new Uint8Array(data.file);
+    var blob = new Blob([fileBytes], {type: "image/jpeg"});
+    var urlCreator = window.URL || window.webkitURL;
+    var fileUrl = urlCreator.createObjectURL(blob);
+    var a = document.createElement('a')
+    var linkText = document.createTextNode("New file");
+    a.href = fileUrl
+    a.appendChild(linkText);
+    li.appendChild(a);
     msgList.appendChild(li);
   });
 
@@ -28,7 +43,18 @@ function init () {
     var li = document.createElement("li");
     li.appendChild(document.createTextNode(box.value));
     msgList.appendChild(li);
-    p2psocket.emit('peer-msg', box.value)
+    if (boxFile.value != '') {
+      var reader = new FileReader();
+      reader.onload = function(evnt) {
+        p2psocket.emit('peer-file', {file: evnt.target.result});
+      }
+      reader.onerror = function(err) {
+        console.error('Error while reading file', err);
+      }
+      reader.readAsArrayBuffer(boxFile.files[0]);
+    } else {
+      p2psocket.emit('peer-msg', {textVal: box.value});
+    }
     box.value = '';
   });
 
