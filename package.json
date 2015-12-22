@@ -44,7 +44,8 @@
     "zuul": "~1.17.1"
   },
   "scripts": {
-    "test": "./node_modules/zuul/bin/zuul --local 8000 -- test/specs/*.js",
+    "test": "./node_modules/zuul/bin/zuul -- test/specs/*.js",
+    "test-local": "./node_modules/zuul/bin/zuul --open --local 8000 -- test/specs/*.js",
     "build": "browserify -s P2P -r ./ | uglifyjs -m > socketiop2p.min.js"
   }
 }
