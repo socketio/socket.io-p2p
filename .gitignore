@@ -6,3 +6,4 @@ node_modules
 scratch.*
 bundle.js
 .zuulrc
+.env

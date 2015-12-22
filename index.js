@@ -111,28 +111,32 @@ function Socketiop2p (socket, opts, cb) {
   socket.on('peer-signal', function (data) {
     // Select peer from offerId if exists
     var peer = self._peers[data.offerId] || self._peers[data.fromPeerId]
+    if (peer !== undefined) {
+      peer.on('signal', function signal (signalData) {
+        var signalObj = {
+          signal: signalData,
+          offerId: data.offerId,
+          fromPeerId: self.peerId,
+          toPeerId: data.fromPeerId
+        }
+        socket.emit('peer-signal', signalObj)
+      })
 
-    peer.on('signal', function signal (signalData) {
-      var signalObj = {
-        signal: signalData,
-        offerId: data.offerId,
-        fromPeerId: self.peerId,
-        toPeerId: data.fromPeerId
-      }
-      socket.emit('peer-signal', signalObj)
-    })
-
-    peer.signal(data.signal)
+      peer.signal(data.signal)
+    }
   })
 
   self.on('peer_ready', function (peer) {
     self.readyPeers++
     if (self.readyPeers >= self.numConnectedClients && !self.ready) {
       self.ready = true
-      if (self.opts.autoUpgrade) self.usePeerConnection = true
-      if (typeof self.cb === 'function') self.cb()
       self.emit('upgrade')
     }
+  })
+
+  self.on('upgrade', function() {
+    if (self.opts.autoUpgrade) self.usePeerConnection = true
+    if (typeof self.cb === 'function') self.cb()
   })
 
 }
