@@ -33,19 +33,22 @@
     "webrtcsupport": "^2.1.2"
   },
   "devDependencies": {
-    "expect": "^1.1.0",
-    "expect.js": "^0.3.1",
+    "concat-stream": "^1.5.1",
     "ecstatic": "^0.8.0",
     "envify": "^3.4.0",
+    "expect": "^1.1.0",
+    "expect.js": "^0.3.1",
     "inherits": "~2.0.1",
+    "simple-get": "^1.4.3",
     "socket.io": "^1.3.5",
     "socket.io-client": "^1.3.5",
     "socket.io-p2p-server": "^1.1.0",
     "tape": "~3.0.0",
+    "xhr": "^2.2.0",
     "zuul": "~3.8.0"
   },
   "scripts": {
-    "test": "./node_modules/zuul/bin/zuul -- test/specs/*.js",
+    "test": "node tasks/fetch_ice.js && ./node_modules/zuul/bin/zuul -- test/specs/*.js",
     "test-local": "export $(cat .env | xargs) && ./node_modules/zuul/bin/zuul --open --local 8000 -- test/specs/*.js",
     "sauce-test": "export $(cat .env | xargs) && ./node_modules/zuul/bin/zuul -- test/specs/*.js",
     "build": "browserify -s P2P -r ./ | uglifyjs -m > socketiop2p.min.js"

@@ -93,19 +93,7 @@ function runTests() {
 }
 
 function createPeers(cb) {
-  var config = { iceServers: [
-                  {
-                    url: process.env.STUN_SERVER,
-                    urls: process.env.STUN_SERVER
-                  },
-                  {
-                    url: process.env.TURN_URL,
-                    username: process.env.TURN_USER,
-                    credential: process.env.TURN_CREDENTIAL,
-                    urls: process.env.TURN_URL
-                  }
-                ]
-              }
+  var config = require('../ice_servers.json')
   var peerOpts = {trickle: false, config: config}
 
   // Stub socket.io conection

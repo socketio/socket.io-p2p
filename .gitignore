@@ -7,3 +7,4 @@ scratch.*
 bundle.js
 .zuulrc
 .env
+test/ice_servers.json
