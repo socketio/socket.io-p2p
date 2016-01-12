@@ -4,7 +4,7 @@ var Emitter = require('component-emitter')
 var p2p1, p2p2, p2p3
 createPeers(runTests)
 
-function runTests() {
+function runTests () {
   test('it should support multi-way communication', function (t) {
     t.plan(2)
     var jsonObj = {ping: 'pong', ding: {dong: 'song'}}
@@ -26,7 +26,7 @@ function runTests() {
     p2p2.useSockets = true
 
     // Mock socket behaviour
-    p2p1.socket.on('socket-obj', function(data) {
+    p2p1.socket.on('socket-obj', function (data) {
       p2p2.emit('socket-obj', data)
     })
 
@@ -92,16 +92,16 @@ function runTests() {
   })
 }
 
-function createPeers(cb) {
+function createPeers (cb) {
   var twillioConfig = require('../ice_servers.json')
   var peerOpts = {trickle: false, config: {iceServers: twillioConfig}}
 
   // Stub socket.io conection
   var sockets = {}
   for (var i = 0; i < 3; i++) {
-    sockets['sio'+i] = {}
-    Emitter(sockets['sio'+i])
-    sockets['sio'+i].io = {engine: {id: i}}
+    sockets['sio' + i] = {}
+    Emitter(sockets['sio' + i])
+    sockets['sio' + i].io = {engine: {id: i}}
   }
 
   p2p1 = new P2P(sockets.sio0, {numClients: 2, peerOpts: peerOpts})
@@ -110,11 +110,11 @@ function createPeers(cb) {
 
   p2p1.on('offers', function (data) {
     for (var i = 1; i < 3; i++) {
-      var socket = sockets['sio'+i]
-      socket.on('peer-signal', function(data) {
+      var socket = sockets['sio' + i]
+      socket.on('peer-signal', function (data) {
         p2p1.socket.emit('peer-signal', data)
       })
-      var offerObj = data.offers[i-1]
+      var offerObj = data.offers[i - 1]
       var emittedOffer = {fromPeerId: 0, offerId: offerObj.offerId, offer: offerObj.offer}
       socket.emit('offer', emittedOffer)
     }
