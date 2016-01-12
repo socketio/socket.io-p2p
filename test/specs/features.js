@@ -57,7 +57,7 @@ function runTests() {
     p2p.emit('upgrade')
   })
 
-  test.skip('it should send and receive binary data', function (t) {
+  test('it should send and receive binary data', function (t) {
     t.plan(1)
     var binaryPacket = {data: new Uint8Array(16)}
 
@@ -68,7 +68,7 @@ function runTests() {
     p2p2.emit('binary-packet', binaryPacket)
   })
 
-  test.skip('it should receive utf8 multibyte characters', function (t) {
+  test('it should receive utf8 multibyte characters', function (t) {
     t.plan(3)
     var correct = [
       'てすと',
@@ -93,8 +93,8 @@ function runTests() {
 }
 
 function createPeers(cb) {
-  var config = require('../ice_servers.json')
-  var peerOpts = {trickle: false, config: config}
+  var twillioConfig = require('../ice_servers.json')
+  var peerOpts = {trickle: false, config: {iceServers: twillioConfig}}
 
   // Stub socket.io conection
   var sockets = {}
