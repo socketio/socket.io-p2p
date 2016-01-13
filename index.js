@@ -24,12 +24,12 @@ function Socketiop2p (socket, opts, cb) {
   self.readyPeers = 0
   self.ready = false
   self._peerEvents = {
-                   upgrade: 1,
-                   error: 1,
-                   peer_signal: 1,
-                   peer_ready: 1,
-                   stream: 1
-                 }
+    upgrade: 1,
+    error: 1,
+    peer_signal: 1,
+    peer_ready: 1,
+    stream: 1
+  }
   var defaultOpts = {
     autoUpgrade: true,
     numClients: 5
@@ -111,30 +111,33 @@ function Socketiop2p (socket, opts, cb) {
   socket.on('peer-signal', function (data) {
     // Select peer from offerId if exists
     var peer = self._peers[data.offerId] || self._peers[data.fromPeerId]
+    if (peer !== undefined) {
+      peer.on('signal', function signal (signalData) {
+        var signalObj = {
+          signal: signalData,
+          offerId: data.offerId,
+          fromPeerId: self.peerId,
+          toPeerId: data.fromPeerId
+        }
+        socket.emit('peer-signal', signalObj)
+      })
 
-    peer.on('signal', function signal (signalData) {
-      var signalObj = {
-        signal: signalData,
-        offerId: data.offerId,
-        fromPeerId: self.peerId,
-        toPeerId: data.fromPeerId
-      }
-      socket.emit('peer-signal', signalObj)
-    })
-
-    peer.signal(data.signal)
+      peer.signal(data.signal)
+    }
   })
 
   self.on('peer_ready', function (peer) {
     self.readyPeers++
     if (self.readyPeers >= self.numConnectedClients && !self.ready) {
       self.ready = true
-      if (self.opts.autoUpgrade) self.usePeerConnection = true
-      if (typeof self.cb === 'function') self.cb()
       self.emit('upgrade')
     }
   })
 
+  self.on('upgrade', function () {
+    if (self.opts.autoUpgrade) self.usePeerConnection = true
+    if (typeof self.cb === 'function') self.cb()
+  })
 }
 
 Emitter(Socketiop2p.prototype)
@@ -180,7 +183,7 @@ Socketiop2p.prototype.emit = function (data, cb) {
     var args = toArray(arguments)
     var parserType = parser.EVENT // default
     if (hasBin(args)) { parserType = parser.BINARY_EVENT } // binary
-    var packet = { type: parserType, data: args}
+    var packet = { type: parserType, data: args }
 
     encoder.encode(packet, function (encodedPackets) {
       if (encodedPackets[1] instanceof ArrayBuffer) {
