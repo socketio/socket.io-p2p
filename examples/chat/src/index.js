@@ -55,6 +55,7 @@ function init () {
       p2psocket.emit('peer-msg', {textVal: box.value})
     }
     box.value = ''
+    boxFile.value = ''
   })
 
   privateButton.addEventListener('click', function (e) {

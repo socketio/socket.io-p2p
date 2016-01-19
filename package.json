@@ -27,7 +27,7 @@
     "extend.js": "0.0.1",
     "has-binary": "^0.1.5",
     "hat": "0.0.3",
-    "simple-peer": "~5.11.0",
+    "simple-peer": "~5.11.8",
     "socket.io-p2p-parser": "tomcartwrightuk/socket.io-p2p-parser",
     "to-array": "^0.1.4",
     "webrtcsupport": "^2.1.2"
