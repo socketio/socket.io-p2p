@@ -20,7 +20,7 @@ p2p.on('ready', function(){
   p2p.emit('peer-obj', { peerId: peerId });
 })
 
-// this event will be triggered over the socket transport 
+// this event will be triggered over the socket transport
 // until `usePeerConnection` is set to `true`
 p2p.on('peer-msg', function(data){
   console.log(data);
@@ -66,7 +66,7 @@ The `opts` object can include options for setup of the overall socket.io-p2p con
 
 - `numClients` - max number of peers each client can connect to; `5` by default.
 - `autoUpgrade` - upgrade to a p2p connection (from s.io one) when peers are ready; `true` by default
-- `peerOpts` - object of options to be passed to underlying peers. See [here](https://github.com/feross/simple-peer/blob/master/README.md#api) for currently supported options.
+- `peerOpts` - object of options to be passed to underlying peers. See [here](https://github.com/feross/simple-peer/blob/master/README.md#api) for currently supported options. See [here](examples/streaming) for an example.
 
 `cb` is an optional callback. Called when connection is upgraded to a WebRTC connection.
 
