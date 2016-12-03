@@ -11,4 +11,4 @@ browserify src/index.js -o bundle.js
 node server.js
 ```
 
-(You will need `browserify` for this. If it isn't installed get it with `npm install --global browserfiy`)
+(You will need `browserify` for this. If it isn't installed get it with `npm install --global browserify`)
