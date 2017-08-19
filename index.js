@@ -1,4 +1,3 @@
-window.myDebug = require('debug')
 var Peer = require('simple-peer')
 var Emitter = require('component-emitter')
 var parser = require('socket.io-p2p-parser')
@@ -41,7 +40,7 @@ function Socketiop2p (socket, opts, cb) {
   socket.on('numClients', function (numClients) {
     self.peerId = socket.io.engine.id
     self.numConnectedClients = numClients
-    if (rtcSupport.supportDataChannel) {
+    if (rtcSupport.supportDataChannel || self.peerOpts.wrtc) {
       generateOffers(function (offers) {
         var offerObj = {
           offers: offers,
