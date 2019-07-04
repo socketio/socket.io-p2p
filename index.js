@@ -1,4 +1,4 @@
-if ('undefined' != typeof window) {
+if ('undefined' !== typeof window) {
   window.myDebug = require('debug')
 }
 var Peer = require('simple-peer')
