@@ -34,7 +34,7 @@
   },
   "devDependencies": {
     "concat-stream": "^1.5.1",
-    "ecstatic": "^0.8.0",
+    "ecstatic": "^4.1.2",
     "envify": "^3.4.0",
     "expect": "^1.1.0",
     "expect.js": "^0.3.1",
