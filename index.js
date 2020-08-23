@@ -172,25 +172,29 @@ Socketiop2p.prototype.on = function (type, listener) {
   this.addEventListener(type, listener)
 }
 
-Socketiop2p.prototype.emit = function (data, cb) {
+/**
+ * If peer_id exist, change to send method.
+ */
+Socketiop2p.prototype.emit = function (data, cb, peer_id) {
   var self = this
   var argsObj = cb || {}
   var encoder = new parser.Encoder()
-
   if (this._peerEvents.hasOwnProperty(data) || argsObj.fromSocket) {
     emitfn.apply(this, arguments)
   } else if (this.usePeerConnection || !this.useSockets) {
     var args = toArray(arguments)
     var parserType = parser.EVENT // default
     if (hasBin(args)) { parserType = parser.BINARY_EVENT } // binary
-    var packet = { type: parserType, data: args }
-
+    var packet = { type: parserType, data: args}
     encoder.encode(packet, function (encodedPackets) {
       if (encodedPackets[1] instanceof ArrayBuffer) {
         self._sendArray(encodedPackets)
       } else if (encodedPackets) {
         for (var i = 0; i < encodedPackets.length; i++) {
-          self._send(encodedPackets[i])
+          if(peer_id != undefined)
+            self.sendOne(peer_id, encodedPackets[i])
+          else
+            self._send(encodedPackets[i])
         }
       } else {
         throw new Error('Encoding error')
